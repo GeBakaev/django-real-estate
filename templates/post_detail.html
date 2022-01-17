@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %} {{ object.title }} {% endblock %}
+
+{% block content %}
+<div class="Top-Background">
+</div>
+<div class="post-details">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 card mb-4  mt-3 left  top">
+        <div class="card-body">
+          <h1>{{ object.title }}</h1>
+          <br>
+          {% comment %} Carousel Wrapper {% endcomment %}
+          <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+              <div class="carousel-inner">
+              {% for images in object.fkListingImageID.all %}        
+                  <div class="carousel-item{% if forloop.first %} active{% endif %}">
+                        <img class="property-images" src="{{images.image.url}}" alt="{{images.name}}">
+                  </div>
+              {%endfor%}
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+              </button>
+          </div>
+          
+          <p class="text-muted-details">${{ object.price }} | {{ object.location }} | {{ object.area }}<sup>m2</sup></p>
+          <p class="card-text-details">{{ object.description | safe }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

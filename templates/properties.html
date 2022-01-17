@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %} Properties {% endblock %}
+
+{% block content %}
+
+{% comment %} Top Banner Starts Here {% endcomment %}
+<div class="main-banner header-text" id="top">
+  <div class="Modern-Slider">
+    <div class="item item-1">
+      <div class="img-fill">
+        <div class="text-content center">
+          <h6>Properties</h6>
+          <h5>Your Next Dream House</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %} Listings {% endcomment %}
+<div class="container--fluid">
+    <br>
+    <div class="row">
+        {% for listing in listing_list %}
+          <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{ listing.title }}</h2>
+                    {% for images in listing.fkListingImageID.all|slice:"0:1" %}
+                        <img src="{{ images.image.url }}" alt="{{ images.name }}" class="img-fluid">
+                    {% endfor %}
+                    <p class="card-text h6">${{ listing.price }} | {{ listing.location }} | {{ listing.area }}<sup>m2</sup></p>
+                    <p class="card-text">{{ listing.description|slice:":200" }}</p>
+                    <a href="{% url 'post_detail' listing.slug  %}" class="btn btn-primary">Read More &rarr;</a>
+                </div>
+            </div>
+          </div>
+            {% endfor %}
+    </div>
+</div>
+{%endblock%}

@@ -1,0 +1,26 @@
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 footer-item">
+                <h4>{{ website_info.website_name }}</h4>
+                <p>Newly starting Real Estate Company in Lebanon aiming to be the best realm, create life changing experiences and enhance quality of life.</p>
+                <ul class="social-icons">
+                <li><a rel="nofollow" href="{{ website_info.facebook_link }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                <li><a href="{{ website_info.instagram_link }}" target="_blank"><i class="fa fa-instagram"></i></a></li>
+                <li><a href="{{ website_info.linkedin_link }}" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 footer-item">
+                <h4>Additional Pages</h4>
+                <ul class="menu-list">
+                <li><a href="{% url 'about-us' %}">About Us</a></li>
+                <li><a href="{% url 'contact-us' %}">Contact Us</a></li>
+                <li><a href="{% url 'properties' %}">Properties</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="Copyright">
+        <p>&copy; Copyright 2022 {{ website_info.website_name }}</p>
+    </div>
+</footer>

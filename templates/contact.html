@@ -1,0 +1,61 @@
+{% extends "base.html" %} 
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %} Contact us {% endblock %}
+
+{% block content %}
+<div class="Top-Background">
+</div>
+<div class="callback-form">
+  <div class="container">
+    <div class="row">
+
+      <div class="col-md-12">
+        <div class="section-heading">
+          <h2>Request a <em>call back</em></h2>
+          <span>Get More Information</span>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="contact-form">
+          <form id="contact" action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-lg-4 col-md-12 col-sm-12">
+                {{ form.name|as_crispy_field }}
+              </div>
+              <div class="col-lg-4 col-md-12 col-sm-12">
+                {{ form.email|as_crispy_field }}
+              </div>
+              <div class="col-lg-4 col-md-12 col-sm-12">
+                {{ form.subject|as_crispy_field }}
+              </div>
+              <div class="col-lg-12">
+                {{ form.message|as_crispy_field }}
+              </div>
+              <div class="col-lg-12">
+                <fieldset>
+                  <button type="submit" id="form-submit" class="border-button">Send Message</button>
+                </fieldset>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    {% comment %} Spacing {% endcomment %}
+    <br><br><br><br>
+  </div>
+</div>
+{%endblock%}
+
+  {% comment %} Extra JS {% endcomment %}
+{% block javascript %}
+<script type="text/javascript">
+  {% if contact_us %}
+    alert('Thank you for contacting us.');
+  {% endif %}
+</script>
+{% endblock javascript %}

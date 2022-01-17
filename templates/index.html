@@ -1,0 +1,159 @@
+{% extends "base.html" %} 
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  {% comment %} Top Banner Starts Here {% endcomment %}
+  <div class="main-banner header-text" id="top">
+      <div class="Modern-Slider">
+        <div class="item item-1">
+          <div class="img-fill">
+              <div class="text-content center">
+                <h6><span>&ldquo;</span> Invest Without Limits <span>&rdquo;</span></h6>
+                <h5>Premier Real Estate <br>From Vacant Lands To Your Future Home</h5>
+                <br><br>
+                <a href="{% url 'properties' %}" class="filled-button">Properties</a>
+              </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="request-form">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8">
+          <h4>Request a private call:</h4>
+        </div>
+        <div class="col-md-4">
+          <a href="{% url 'contact-us' %}" class="border-button">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="services">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="section-heading">
+            <h2>Featured <em>Properties</em></h2>
+            <span>Recently Added Properties For Sale</span>
+          </div>
+        </div>
+        {% for listing in listing_list|slice:"0:3" %}
+          <div class="col-md-4">
+            <div class="service-item">
+                {% for images in listing.fkListingImageID.all|slice:"0:1" %}
+                    <img class="img-fluid" src="{{ images.image.url }}" alt="{{ images.name }}">
+                {% endfor %}
+              <div class="down-content">
+                <h4>{{ listing.title }}</h4>
+                <div style="margin-bottom:10px;">
+                  <span>${{ listing.price }}</span><br>
+                  <span> {{ listing.area }}<sup>m2</sup></span>
+                </div>
+
+                <p>{{listing.description|slice:":40" }}</p>
+
+                <a href="{% url 'post_detail' listing.slug  %}" class="filled-button">Read More &rarr;</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="fun-facts">
+    <div class="container">
+      <div class="more-info-content">
+        <div class="row">
+          <div class="col-md-6 d-flex justify-content-center">
+            <div class="right-content">
+              <span>Who we are</span>
+              <h2>Get to know about <em>us</em></h2>
+              <p>Newly starting Real Estate Company in {{ website_info.business_location }} aiming to be the best realm, create life changing experiences and enhancing quality of life.</p>
+              <a href="{% url 'about-us' %}" class="filled-button">Read More</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonials">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="section-heading">
+            <h2>Buying a property in <em>{{ website_info.business_location }}</em></h2>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="owl-testimonials owl-carousel">
+            <div class="testimonial-item">
+              <div class="inner-content">
+                <p>At {{ website_info.website_name }} we will help you find the right property, within budget, in the location that matches you desires, taste and requirements. </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} Contact Form {% endcomment %}
+  <div class="callback-form">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="section-heading">
+            <h2>Request a <em>call back</em></h2>
+            <span>Get More Information</span>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="contact-form">
+            <form id="contact" action="" method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-lg-4 col-md-12 col-sm-12">
+                  {{ form.name|as_crispy_field }}
+                </div>
+                <div class="col-lg-4 col-md-12 col-sm-12">
+                  {{ form.email|as_crispy_field }}
+                </div>
+                <div class="col-lg-4 col-md-12 col-sm-12">
+                  {{ form.subject|as_crispy_field }}
+                </div>
+                <div class="col-lg-12">
+                  {{ form.message|as_crispy_field }}
+                </div>
+                <div class="col-lg-12">
+                  <fieldset>
+                    <button type="submit" id="form-submit" class="border-button">Send Message</button>
+                  </fieldset>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <br>
+      <br>
+    </div>
+  </div>
+{%endblock%}
+
+{% comment %} Extra JS {% endcomment %}
+{% block javascript %}
+  <script type="text/javascript">
+    {% if contact_us %}
+      alert('Thank you for contacting us.');
+    {% endif %}
+  </script>
+{% endblock javascript %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} About us {% endblock %}
+
+{% block content %}
+
+<!-- Page Content -->
+<div class="page-heading header-text">
+    <div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h6>About Us</h6>
+            <h5>&ldquo; THE BEST INVESTMENT ON EARTH IS EARTH &rdquo;</h5>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="more-info about-info">
+    <div class="container">
+    <div class="row">
+        <div class="col-md-12">
+        <div class="more-info-content">
+            <div class="row">
+            <div class="col-md-6 align-self-center">
+                <div class="right-content">
+                <h2>Get to know about <em>us</em></h2>
+                <p>{{ website_info.about_us }}</p>
+                </div>
+            </div>
+            <div class="col-md-6 d-none d-sm-block">
+                <div class="left-image">
+                <img src="{% static 'images/About-Page-About-Image.jpg' %}" alt="Place-Holder">
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="fun-facts">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="count-area-content">
+                    <div class="count-digit">{{ website_info.properties_count }}</div>
+                    <div class="count-title">Properties</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="count-area-content">
+                    <div class="count-digit">{{ website_info.cities_count }}</div>
+                    <div class="count-title">Cities</div>
+                </div>
+            </div>
+            <div class="col-md-6 align-self-center">
+                <div class="count-area-content">
+                    <div class="count-digit">{{ website_info.offices_count }}</div>
+                    <div class="count-title">offices</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
