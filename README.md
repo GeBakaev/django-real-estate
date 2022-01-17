@@ -16,14 +16,14 @@ Most of the information visible on the website can be updated from the admin pan
 
 ## Installation
 
-1- Clone this repository.
-2- *Create new Virtual Env. (Optional)*
-3- `python install -r requirements.txt`
-4- Change settings.py
-    - Generate a Secret Key: `python -c "import secrets; print(secrets.token_urlsafe())"` and add it to SECRET_KEY.
-    - *Change DATABASE (Optional)*
-5- Create Database: `python manage.py migrate` and Create Admin User `python manage.py createsuperuser`
-6- RUN! `python manage.py runserver`
+1. Clone this repository.
+2. *Create new Virtual Env. (Optional)*
+3. `python install -r requirements.txt`
+4. Change settings.py
+    * Generate a Secret Key: `python -c "import secrets; print(secrets.token_urlsafe())"` and add it to SECRET_KEY.
+    * *Change DATABASE (Optional)*
+5. Create Database: `python manage.py migrate` and Create Admin User `python manage.py createsuperuser`
+6. RUN! `python manage.py runserver`
 
 ## Changing Website Information and Adding Listings
 
@@ -39,7 +39,7 @@ Listings can also be added or updated from the admin panel.
 
 ## Images
 
-[Index](https://imgur.com/x9fhZmk)
-[Properties](https://imgur.com/Err7SAg)
+![Index](https://imgur.com/x9fhZmk.jpg)
+![Properties](https://imgur.com/Err7SAg.jpg)
 
 More Images: https://imgur.com/a/wZcj2DU
