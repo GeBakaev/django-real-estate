@@ -2,6 +2,9 @@
 from django.shortcuts import render
 from django.views import generic
 
+# Settings
+from realestate.settings import GEOPOSITION_GOOGLE_MAPS_API_KEY as GOOGLE_MAP_KEY
+
 # Import models and forms
 from .models import Listing, Contact, WebsiteInfo
 from .forms import ContactForm
@@ -55,7 +58,8 @@ class PostDetail(generic.DetailView):
     extra_context = {
         'Listing': model,
         'website_info': website_info,
-        'nbar': "Properties"
+        'nbar': "Properties",
+        "GOOGLE_MAP_KEY": GOOGLE_MAP_KEY
     }
 
 # About US

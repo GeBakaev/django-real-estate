@@ -2,7 +2,12 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Listing, Image, Contact, WebsiteInfo
+from .models import GeoPosition, Listing, Image, Contact, WebsiteInfo
+
+# Listing GeoPosition
+class GeoPositionDetailsInline(admin.TabularInline):
+    model = GeoPosition
+    field = 'position'
 
 # Listing Images
 class ImageDetailsInline(admin.TabularInline):
@@ -11,7 +16,7 @@ class ImageDetailsInline(admin.TabularInline):
 
 # Listing
 class ListingAdmin(admin.ModelAdmin):
-    inlines = (ImageDetailsInline, )
+    inlines = (ImageDetailsInline, GeoPositionDetailsInline)
     list_display = ('title', 'slug', 'price', 'location', 'created_on')
     list_filter = ("status",)
     search_fields = ['title', 'description']

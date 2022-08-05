@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'crispy_forms',
+    "geoposition",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -120,6 +121,8 @@ STATICFILES_DIRS = (os.path.join('static'), )
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Google Geo-Position
+GEOPOSITION_GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY'
 
 # Crispy Forms Settings
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

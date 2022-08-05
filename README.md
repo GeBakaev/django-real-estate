@@ -12,7 +12,7 @@ Most of the information visible on the website can be updated from the admin pan
 * Responsive and Mobile Friendly Design using Bootstrap.
 * Add Listings with multiple images from Admin Panel.
 * Change Website Information from Admin Panel.
-* Integrated Google Maps Coordinate System. (TODO)
+* Integrated Google Maps Coordinate System.
 
 ## Installation
 
@@ -22,6 +22,7 @@ Most of the information visible on the website can be updated from the admin pan
 4. Change settings.py
     * Generate a Secret Key: `python -c "import secrets; print(secrets.token_urlsafe())"` and add it to SECRET_KEY.
     * *Change DATABASE (Optional)*
+    * Get Your Google Maps API Key: https://developers.google.com/maps/documentation/javascript/get-api-key and add it to GEOPOSITION_GOOGLE_MAPS_API_KEY in settings.py 
 5. Create Database: `python manage.py migrate` and Create Admin User `python manage.py createsuperuser`
 6. RUN! `python manage.py runserver`
 
@@ -34,7 +35,6 @@ Listings can also be added or updated from the admin panel.
 
 * Better Responsive Images.
 * Convert OLD CSS Styling to Bootstrap.
-* Add Support for Google Maps Coordinates.
 * Add Simple Deploy to Heroku Button.
 
 ## Images

@@ -2,6 +2,10 @@
 from django.db import models
 from django.utils.text import slugify
 
+# Django Geoposition-2
+from geoposition.fields import GeopositionField
+
+
 STATUS = (
     (0, "Draft"),
     (1, "Publish")
@@ -18,8 +22,6 @@ class Listing(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS, default=0)
     location = models.CharField(max_length=200)
-    maps_x_coordinate = models.FloatField(max_length=200, default=0)
-    maps_y_coordinate = models.FloatField(max_length=200, default=0)
 
     class Meta:
         ordering = ['-created_on']
@@ -30,6 +32,13 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.title
+
+# Google GeoPosition
+class GeoPosition(models.Model):
+    id = models.AutoField(db_column='id', primary_key=True)
+    position = GeopositionField()
+    listing = models.OneToOneField(Listing, on_delete=models.CASCADE,
+                                        default=None, null=True, related_name='fkListingID')
 
 # Image Model
 class Image(models.Model):

@@ -1,6 +1,6 @@
 from django.db import migrations, models
 import django.db.models.deletion
-
+import geoposition.fields
 
 class Migration(migrations.Migration):
 
@@ -27,6 +27,14 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='GeoPosition',
+            fields=[
+                ('id', models.AutoField(db_column='id', primary_key=True, serialize=False)),
+                ('position', geoposition.fields.GeopositionField(max_length=42)),
+                ('listing', models.OneToOneField(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='fkListingID', to='listings.listing')),
+            ],
+        ),
+        migrations.CreateModel(
             name='Listing',
             fields=[
                 ('listing_id', models.AutoField(db_column='id', primary_key=True, serialize=False)),
@@ -38,8 +46,6 @@ class Migration(migrations.Migration):
                 ('created_on', models.DateTimeField(auto_now_add=True)),
                 ('status', models.IntegerField(choices=[(0, 'Draft'), (1, 'Publish')], default=0)),
                 ('location', models.CharField(max_length=200)),
-                ('maps_x_coordinate', models.FloatField(default=0, max_length=200)),
-                ('maps_y_coordinate', models.FloatField(default=0, max_length=200)),
             ],
             options={
                 'ordering': ['-created_on'],
