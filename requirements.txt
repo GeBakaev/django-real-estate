@@ -1,6 +1,11 @@
-asgiref==3.4.1
-certifi==2020.6.20
-Django==4.0.1
-django-crispy-forms==1.13.0
-Pillow==9.0.0
-sqlparse==0.4.2
+asgiref==3.8.1
+crispy-bootstrap5==2024.10
+Django==5.2
+django-crispy-forms==2.3
+django-geoposition-2==0.4.0
+pillow==11.2.1
+psycopg2-binary==2.9.10
+setuptools==75.8.0
+sqlparse==0.5.3
+uWSGI==2.0.28
+wheel==0.45.1

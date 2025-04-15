@@ -3,11 +3,13 @@ from django.shortcuts import render
 from django.views import generic
 
 # Settings
-from realestate.settings import GEOPOSITION_GOOGLE_MAPS_API_KEY as GOOGLE_MAP_KEY
+from real_estate.settings import GEOPOSITION_GOOGLE_MAPS_API_KEY as GOOGLE_MAP_KEY
+
 
 # Import models and forms
-from .models import Listing, Contact, WebsiteInfo
-from .forms import ContactForm
+from listings.models import Listing, Contact
+from listings.forms import ContactForm
+
 
 # Pages
 # Home Page
@@ -16,80 +18,66 @@ def HomePage(request):
     form = ContactForm(request.POST or None)
 
     # Get Most Recent Listings
-    listing_list = Listing.objects.filter(status=1).order_by('-created_on')
-    # Website Info
-    website_info = WebsiteInfo.objects.get(info_id = 1)
+    listing_list = Listing.objects.filter(status=1).order_by("-created_on")
 
     # Context
     context = {
-        'nbar': "Home",
-        'listing_list': listing_list,
-        'website_info': website_info,
-        'form': form
+        "nbar": "Home",
+        "listing_list": listing_list,
+        "form": form,
     }
 
     # Code For Contact Us Form
-    if request.method == 'POST' and form.is_valid():
+    if request.method == "POST" and form.is_valid():
         addContactToDB(request)
-        context['contact_us'] = True
+        context["contact_us"] = True
 
     # Render
-    return render(request, 'index.html', context)
+    return render(request, "index.html", context)
+
 
 # Properties Page
 class PostList(generic.ListView):
     # Listings
-    queryset = Listing.objects.filter(status=1).order_by('-created_on')
-    # Website Info
-    website_info = WebsiteInfo.objects.get(info_id = 1)
-    template_name = 'properties.html'
+    queryset = Listing.objects.filter(status=1).order_by("-created_on")
+    template_name = "properties.html"
     extra_context = {
-        'listing_list': queryset,
-        'website_info': website_info,
-        'nbar': "Properties"
+        "listing_list": queryset,
+        "nbar": "Properties",
     }
+
 
 # Post Details
 class PostDetail(generic.DetailView):
     model = Listing
-    template_name = 'post_detail.html'
-    # Website Info
-    website_info = WebsiteInfo.objects.get(info_id = 1)
+    template_name = "post_detail.html"
     extra_context = {
-        'Listing': model,
-        'website_info': website_info,
-        'nbar': "Properties",
-        "GOOGLE_MAP_KEY": GOOGLE_MAP_KEY
+        "Listing": model,
+        "nbar": "Properties",
+        "GOOGLE_MAP_KEY": GOOGLE_MAP_KEY,
     }
+
 
 # About US
 def about_us(request):
-    # Website Info
-    website_info = WebsiteInfo.objects.get(info_id = 1)
-    return render(request, 'about.html', {'nbar': "About", 'website_info': website_info})
+    return render(request, "about.html", {"nbar": "About"})
+
 
 # Contact Us
 def contact_us(request):
     # Form
     form = ContactForm(request.POST or None)
 
-    # Website Info
-    website_info = WebsiteInfo.objects.get(info_id = 1)
-
     # Context
-    context = {
-        'nbar': "Contact",
-        'website_info': website_info,
-        'form': form
-    }
+    context = {"nbar": "Contact", "form": form}
 
     # Code For Contact Us Form
-    if request.method == 'POST' and form.is_valid():
+    if request.method == "POST" and form.is_valid():
         addContactToDB(request)
-        context['contact_us'] = True
+        context["contact_us"] = True
 
     # Render
-    return render(request, 'contact.html', context)
+    return render(request, "contact.html", context)
 
 
 # UTILS
@@ -99,6 +87,8 @@ def addContactToDB(request):
     email = request.POST.get("email")
     subject = request.POST.get("subject")
     message = request.POST.get("message")
-    
-    contactEmail = Contact.objects.create(name=name, email=email, subject=subject, message=message)
+
+    contactEmail = Contact.objects.create(
+        name=name, email=email, subject=subject, message=message
+    )
     contactEmail.save()

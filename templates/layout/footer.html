@@ -1,13 +1,14 @@
+{% load get_website_info %}
 <footer>
     <div class="container">
         <div class="row">
             <div class="col-md-3 footer-item">
-                <h4>{{ website_info.website_name }}</h4>
+                <h4>{% get_website_info 'website_name' %}</h4>
                 <p>Newly starting Real Estate Company in Lebanon aiming to be the best realm, create life changing experiences and enhance quality of life.</p>
                 <ul class="social-icons">
-                <li><a rel="nofollow" href="{{ website_info.facebook_link }}" target="_blank"><i class="fa fa-facebook"></i></a></li>
-                <li><a href="{{ website_info.instagram_link }}" target="_blank"><i class="fa fa-instagram"></i></a></li>
-                <li><a href="{{ website_info.linkedin_link }}" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+                <li><a rel="nofollow" href="{% get_website_info 'facebook_link' %}" target="_blank"><i class="bi bi-facebook"></i></a></li>
+                <li><a href="{% get_website_info 'instagram_link' %}" target="_blank"><i class="bi bi-instagram"></i></a></li>
+                <li><a href="{% get_website_info 'linkedin_link' %}" target="_blank"><i class="bi bi-linkedin"></i></a></li>
                 </ul>
             </div>
             <div class="col-md-3 footer-item">
@@ -21,6 +22,6 @@
         </div>
     </div>
     <div class="Copyright">
-        <p>&copy; Copyright 2022 {{ website_info.website_name }}</p>
+        <p>&copy; Copyright 2025 {% get_website_info 'website_name' %}</p>
     </div>
 </footer>
