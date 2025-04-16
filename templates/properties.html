@@ -18,10 +18,9 @@
 </div>
 
 {% comment %} Listings {% endcomment %}
-<div class="container--fluid">
-    <br>
+<div id="properties" class="container--fluid properties-margin">
     <div class="row" style="margin-left: 0; margin-right: 0;">
-        {% for listing in listing_list %}
+        {% for listing in page_obj %}
           <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body">
@@ -37,5 +36,7 @@
           </div>
             {% endfor %}
     </div>
+    {% comment %} Import pagination {% endcomment %}
+    {% include 'layout/pagination.html' with page_obj=page_obj %}
 </div>
 {%endblock%}

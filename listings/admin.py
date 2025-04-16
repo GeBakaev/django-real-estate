@@ -2,23 +2,19 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import GeoPosition, Listing, Image, Contact, WebsiteInfo
-
-
-# Listing GeoPosition
-class GeoPositionDetailsInline(admin.TabularInline):
-    model = GeoPosition
+from .models import Listing, Image, Contact, WebsiteInfo
 
 
 # Listing Images
 class ImageDetailsInline(admin.TabularInline):
     model = Image
     fields = ("name", "listing", "image", "default")
+    extra = 1
 
 
 # Listing
 class ListingAdmin(admin.ModelAdmin):
-    inlines = (ImageDetailsInline, GeoPositionDetailsInline)
+    inlines = (ImageDetailsInline,)
     list_display = ("title", "slug", "price", "location", "created_on")
     list_filter = ("status",)
     search_fields = ["title", "description"]

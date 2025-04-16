@@ -167,6 +167,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Google Geo-Position
 GEOPOSITION_GOOGLE_MAPS_API_KEY = os.environ.get("GEOPOSITION_GOOGLE_MAPS_API_KEY")
 
+# Pagination
+PAGINATION_LIMIT = 9
+
 # Crispy forms
 # https://github.com/django-crispy-forms/crispy-bootstrap5
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

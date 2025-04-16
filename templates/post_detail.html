@@ -47,13 +47,14 @@
   <script
     src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAP_KEY}}&callback=initMap&v=weekly"
     defer
+    loading="async"
   ></script>
 
   <script type="text/javascript">
 
     function initMap() {
       // Split Lat, long
-      let split_location_str = "{{ object.fkListingID.position | safe }}"
+      let split_location_str = "{{ object.position | safe }}"
       let split_location_array = split_location_str.split(",")
       let lat_float = parseFloat(split_location_array[0])
       let long_float = parseFloat(split_location_array[1])

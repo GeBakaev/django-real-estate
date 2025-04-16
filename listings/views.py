@@ -9,6 +9,7 @@ from real_estate.settings import GEOPOSITION_GOOGLE_MAPS_API_KEY as GOOGLE_MAP_K
 # Import models and forms
 from listings.models import Listing, Contact
 from listings.forms import ContactForm
+from real_estate.settings import PAGINATION_LIMIT
 
 
 # Pages
@@ -19,6 +20,8 @@ def HomePage(request):
 
     # Get Most Recent Listings
     listing_list = Listing.objects.filter(status=1).order_by("-created_on")
+    # Return the first 3 only
+    listing_list = listing_list[:3]
 
     # Context
     context = {
@@ -41,8 +44,8 @@ class PostList(generic.ListView):
     # Listings
     queryset = Listing.objects.filter(status=1).order_by("-created_on")
     template_name = "properties.html"
+    paginate_by = PAGINATION_LIMIT
     extra_context = {
-        "listing_list": queryset,
         "nbar": "Properties",
     }
 

@@ -20,6 +20,7 @@ class Listing(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS, default=0)
     location = models.CharField(max_length=200)
+    position = GeopositionField(default="0, 0")
 
     class Meta:
         ordering = ["-created_on"]
@@ -30,19 +31,6 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.title
-
-
-# Google GeoPosition
-class GeoPosition(models.Model):
-    id = models.AutoField(db_column="id", primary_key=True)
-    position = GeopositionField()
-    listing = models.OneToOneField(
-        Listing,
-        on_delete=models.CASCADE,
-        default=None,
-        null=True,
-        related_name="fkListingID",
-    )
 
 
 # Image Model
