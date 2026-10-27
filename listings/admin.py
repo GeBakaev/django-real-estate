@@ -1,59 +1,39 @@
-# Django Libs
 from django.contrib import admin
 
-# Register your models here.
-from .models import Listing, Image, Contact, WebsiteInfo
+from .models import Contact, Image, Listing, WebsiteInfo
 
 
-# Listing Images
-class ImageDetailsInline(admin.TabularInline):
+class ImageInline(admin.TabularInline):
     model = Image
-    fields = ("name", "listing", "image", "default")
+    fields = ("name", "image", "default")
     extra = 1
 
 
-# Listing
+@admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    inlines = (ImageDetailsInline,)
-    list_display = ("title", "slug", "price", "location", "created_on")
+    inlines = (ImageInline,)
+    list_display = ("title", "status", "price", "location", "created_on")
     list_filter = ("status",)
-    search_fields = ["title", "description"]
-
-    def get_exclude(self, request, obj=None):
-        if obj is None:
-            return ["slug"]
-        return []
+    search_fields = ("title", "description", "location")
+    prepopulated_fields = {"slug": ("title",)}
 
 
-# Contact
+@admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "subject", "message", "created_time")
-    search_fields = ["email", "subject"]
+    list_display = ("name", "email", "subject", "created_time")
+    search_fields = ("name", "email", "subject")
+    readonly_fields = ("name", "email", "subject", "message", "created_time")
+
+    def has_add_permission(self, request):
+        return False
 
 
-# Website Info
+@admin.register(WebsiteInfo)
 class WebsiteInfoAdmin(admin.ModelAdmin):
-    list_display = (
-        "website_name",
-        "business_location",
-        "email",
-        "phone_number",
-        "about_us",
-        "facebook_link",
-        "instagram_link",
-        "linkedin_link",
-        "properties_count",
-        "cities_count",
-        "offices_count",
-    )
+    list_display = ("website_name", "business_location", "email", "phone_number")
 
     def has_add_permission(self, request):
         return WebsiteInfo.objects.count() == 0
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-
-admin.site.register(Listing, ListingAdmin)
-admin.site.register(Contact, ContactAdmin)
-admin.site.register(WebsiteInfo, WebsiteInfoAdmin)

@@ -1,7 +1,7 @@
 {% extends "base.html" %} 
+{% load humanize %}
 {% load static %}
 {% load crispy_forms_tags %}
-{% load get_website_info %}
 
 {% block content %}
   {% comment %} Top Banner Starts Here {% endcomment %}
@@ -45,13 +45,13 @@
         {% for listing in listing_list %}
           <div class="col-md-4">
             <div class="service-item">
-                {% for images in listing.fkListingImageID.all|slice:"0:1" %}
+                {% for images in listing.images.all|slice:"0:1" %}
                     <img class="img-fluid rounded-top" src="{{ images.image.url }}" alt="{{ images.name }}">
                 {% endfor %}
               <div class="down-content rounded-bottom">
                 <h4>{{ listing.title }}</h4>
                 <div style="margin-bottom:10px;">
-                  <span>${{ listing.price }}</span><br>
+                  <span>${{ listing.price|intcomma }}</span><br>
                   <span> {{ listing.area }}<sup>m2</sup></span>
                 </div>
 
@@ -74,7 +74,7 @@
             <div class="right-content">
               <span>Who we are</span>
               <h2>Get to know about <em>us</em></h2>
-              <p>Newly starting Real Estate Company in {% get_website_info 'business_location' %} aiming to be the best realm, create life changing experiences and enhancing quality of life.</p>
+              <p>Newly starting Real Estate Company in {{ site_info.business_location }} aiming to be the best realm, create life changing experiences and enhancing quality of life.</p>
               <a href="{% url 'about-us' %}" class="filled-button">Read More</a>
             </div>
           </div>
@@ -88,14 +88,14 @@
       <div class="row">
         <div class="col-md-12">
           <div class="section-heading">
-            <h2 class="section-heading-alternative">Buying a property in <em>{% get_website_info 'business_location' %}</em></h2>
+            <h2 class="section-heading-alternative">Buying a property in <em>{{ site_info.business_location }}</em></h2>
           </div>
         </div>
         <div class="col-md-12">
           <div class="owl-testimonials owl-carousel">
             <div class="testimonial-item">
               <div class="inner-content">
-                <p>At {% get_website_info 'website_name' %} we will help you find the right property, within budget, in the location that matches you desires, taste and requirements. </p>
+                <p>At {{ site_info.website_name }} we will help you find the right property, within budget, in the location that matches you desires, taste and requirements. </p>
               </div>
             </div>
           </div>
@@ -149,12 +149,3 @@
     </div>
   </div>
 {%endblock%}
-
-{% comment %} Extra JS {% endcomment %}
-{% block javascript %}
-  <script type="text/javascript">
-    {% if contact_us %}
-      alert('Thank you for contacting us.');
-    {% endif %}
-  </script>
-{% endblock javascript %}
