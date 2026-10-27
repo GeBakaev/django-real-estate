@@ -1,12 +1,11 @@
 {% load static %}
-{% load get_website_info %}
 
 <!DOCTYPE html>
 <html>
     {% comment %} Website Info {% endcomment %}
         {% comment %} Website Head {% endcomment %}
         <head>
-            <title>{% get_website_info 'website_name' %} - {% block title %} Home {% endblock %}</title>
+            <title>{{ site_info.website_name }} - {% block title %} Home {% endblock %}</title>
             <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
             <meta name="google" content="notranslate" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,6 +19,17 @@
             <div class="main-container">
                 {% comment %} Navigation {% endcomment %}
                 {% include "top-nav.html" %}
+
+                {% if messages %}
+                <div class="container mt-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
                 {% block content %}
                 {% comment %} Content Goes here {% endcomment %}

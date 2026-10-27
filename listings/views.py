@@ -1,97 +1,61 @@
-# Django Libs
-from django.shortcuts import render
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import redirect, render
 from django.views import generic
 
-# Settings
-from real_estate.settings import GEOPOSITION_GOOGLE_MAPS_API_KEY as GOOGLE_MAP_KEY
+from .forms import ContactForm
+from .models import Listing
+
+CONTACT_SUCCESS_MESSAGE = "Thank you for contacting us. We will get back to you shortly."
 
 
-# Import models and forms
-from listings.models import Listing, Contact
-from listings.forms import ContactForm
-from real_estate.settings import PAGINATION_LIMIT
-
-
-# Pages
-# Home Page
-def HomePage(request):
-    # Form
+def _handle_contact_form(request):
+    """Bind the contact form; save and return True when a valid POST arrived."""
     form = ContactForm(request.POST or None)
-
-    # Get Most Recent Listings
-    listing_list = Listing.objects.filter(status=1).order_by("-created_on")
-    # Return the first 3 only
-    listing_list = listing_list[:3]
-
-    # Context
-    context = {
-        "nbar": "Home",
-        "listing_list": listing_list,
-        "form": form,
-    }
-
-    # Code For Contact Us Form
     if request.method == "POST" and form.is_valid():
-        addContactToDB(request)
-        context["contact_us"] = True
+        form.save()
+        messages.success(request, CONTACT_SUCCESS_MESSAGE)
+        return form, True
+    return form, False
 
-    # Render
+
+def home(request):
+    form, submitted = _handle_contact_form(request)
+    if submitted:
+        return redirect("home")
+
+    listings = Listing.objects.published().prefetch_related("images")[:3]
+    context = {"nbar": "Home", "listing_list": listings, "form": form}
     return render(request, "index.html", context)
 
 
-# Properties Page
 class PostList(generic.ListView):
-    # Listings
-    queryset = Listing.objects.filter(status=1).order_by("-created_on")
     template_name = "properties.html"
-    paginate_by = PAGINATION_LIMIT
-    extra_context = {
-        "nbar": "Properties",
-    }
+    paginate_by = settings.PAGINATION_LIMIT
+    extra_context = {"nbar": "Properties"}
+
+    def get_queryset(self):
+        return Listing.objects.published().prefetch_related("images")
 
 
-# Post Details
 class PostDetail(generic.DetailView):
-    model = Listing
     template_name = "post_detail.html"
     extra_context = {
-        "Listing": model,
         "nbar": "Properties",
-        "GOOGLE_MAP_KEY": GOOGLE_MAP_KEY,
+        "GOOGLE_MAP_KEY": settings.GEOPOSITION_GOOGLE_MAPS_API_KEY,
     }
 
+    def get_queryset(self):
+        # Drafts must never be reachable by guessing the slug.
+        return Listing.objects.published().prefetch_related("images")
 
-# About US
+
 def about_us(request):
     return render(request, "about.html", {"nbar": "About"})
 
 
-# Contact Us
 def contact_us(request):
-    # Form
-    form = ContactForm(request.POST or None)
-
-    # Context
-    context = {"nbar": "Contact", "form": form}
-
-    # Code For Contact Us Form
-    if request.method == "POST" and form.is_valid():
-        addContactToDB(request)
-        context["contact_us"] = True
-
-    # Render
-    return render(request, "contact.html", context)
-
-
-# UTILS
-# Add Contact Us To DB
-def addContactToDB(request):
-    name = request.POST.get("name")
-    email = request.POST.get("email")
-    subject = request.POST.get("subject")
-    message = request.POST.get("message")
-
-    contactEmail = Contact.objects.create(
-        name=name, email=email, subject=subject, message=message
-    )
-    contactEmail.save()
+    form, submitted = _handle_contact_form(request)
+    if submitted:
+        return redirect("contact-us")
+    return render(request, "contact.html", {"nbar": "Contact", "form": form})

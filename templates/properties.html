@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block title %} Properties {% endblock %}
 
 {% block content %}
@@ -25,10 +26,10 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h2 class="card-title">{{ listing.title }}</h2>
-                    {% for images in listing.fkListingImageID.all|slice:"0:1" %}
+                    {% for images in listing.images.all|slice:"0:1" %}
                         <img src="{{ images.image.url }}" alt="{{ images.name }}" class="img-fluid">
                     {% endfor %}
-                    <p class="card-text h6">${{ listing.price }} | {{ listing.location }} | {{ listing.area }}<sup>m2</sup></p>
+                    <p class="card-text h6">${{ listing.price|intcomma }} | {{ listing.location }} | {{ listing.area }}<sup>m2</sup></p>
                     <p class="card-text">{{ listing.description|slice:":200" }}</p>
                     <a href="{% url 'post_detail' listing.slug  %}" class="btn btn-primary">Read More &rarr;</a>
                 </div>
