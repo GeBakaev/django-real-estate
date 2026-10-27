@@ -1,7 +1,6 @@
 .*
 !/.gitignore
 
-*.json
 .creds*
 
 .idea/

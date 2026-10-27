@@ -24,12 +24,24 @@ Most of the information visible on the website can be updated from the admin pan
 ## Installation
 
 1. Clone this repository.
-2. Add keys inside a file called .env (Sample: .sample.env)
-   - Generate a Secret Key: `python -c "import secrets; print(secrets.token_urlsafe())"` and add it to SECRET_KEY.
-   - _Change DATABASE: Name, Username, Password._
-   - _Admin Information: Username, Email, Password._
-   - Get Your Google Maps API Key: https://developers.google.com/maps/documentation/javascript/get-api-key and add it to GEOPOSITION_GOOGLE_MAPS_API_KEY.
-3. RUN! `docker compose -f docker-compose.yaml up --build`
+2. Copy `.sample.env` to `.env` and fill it in:
+   - Generate a secret key: `python -c "import secrets; print(secrets.token_urlsafe())"` and set `SECRET_KEY`.
+   - Change the database name, username and password.
+   - Set the initial admin username, email and password. The account is created on first start; leave the password empty to skip it.
+   - Optional: a Google Maps API key for the admin map widget: https://developers.google.com/maps/documentation/javascript/get-api-key
+   - Set `DEBUG=0` and `USE_HTTPS=1` when deploying behind TLS.
+3. Run `docker compose up --build`. On start the web container applies migrations, collects static files and creates the admin user; nginx serves the site on port 80 and static/media files directly.
+
+### Local development without Docker
+
+```bash
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python manage.py migrate
+.venv/bin/python manage.py test
+DEBUG=1 .venv/bin/python manage.py runserver
+```
+
+Without a `.env` the app falls back to SQLite and a development secret key.
 
 ## Changing Website Information and Adding Listings
 

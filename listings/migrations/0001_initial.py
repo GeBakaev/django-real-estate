@@ -1,7 +1,6 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import geoposition.fields
-import os
 
 
 class Migration(migrations.Migration):
@@ -16,20 +15,6 @@ class Migration(migrations.Migration):
     def create_website_info(apps, schema_editor):
         WebsiteInfo = apps.get_model("listings", "WebsiteInfo")
         WebsiteInfo.objects.create()
-
-    def create_default_admin(apps, schema_editor):
-        User = apps.get_model("auth", "User")
-
-        # Get credentials from environment variables with fallback defaults
-        admin_username = os.environ.get("DJANGO_ADMIN_USERNAME", "admin")
-        admin_email = os.environ.get("DJANGO_ADMIN_EMAIL", "admin@example.com")
-        admin_password = os.environ.get("DJANGO_ADMIN_PASSWORD", "admin123")
-
-        if not User.objects.filter(username=admin_username).exists():
-            admin = User.objects.create_superuser(
-                username=admin_username, email=admin_email, password=admin_password
-            )
-            admin.save()
 
     operations = [
         migrations.CreateModel(
@@ -160,6 +145,4 @@ class Migration(migrations.Migration):
         ),
         # Create First Web Info
         migrations.RunPython(create_website_info),
-        # Create Default Admin
-        migrations.RunPython(create_default_admin),
     ]

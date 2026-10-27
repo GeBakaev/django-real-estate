@@ -33,6 +33,19 @@ DEBUG = env_bool("DEBUG", default=False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
+# HTTPS hardening. Enable once the site is served over TLS (e.g. nginx or a
+# load balancer terminating SSL in front of the app); leaving it on for a
+# plain-HTTP deployment would redirect-loop and drop the session cookie.
+USE_HTTPS = env_bool("USE_HTTPS", default=False)
+if USE_HTTPS:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = False
+
 
 # Application definition
 

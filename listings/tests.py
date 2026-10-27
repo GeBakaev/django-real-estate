@@ -145,3 +145,44 @@ class WebsiteInfoTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["site_info"].website_name, "Real Estate Website")
+
+
+class EnsureSuperuserCommandTests(TestCase):
+    def _run(self, **env):
+        from io import StringIO
+        from unittest import mock
+
+        from django.core.management import call_command
+
+        out = StringIO()
+        with mock.patch.dict("os.environ", env, clear=False):
+            call_command("ensure_superuser", stdout=out)
+        return out.getvalue()
+
+    def test_creates_admin_from_env(self):
+        from django.contrib.auth import get_user_model
+
+        self._run(
+            DJANGO_ADMIN_USERNAME="boss",
+            DJANGO_ADMIN_EMAIL="boss@example.com",
+            DJANGO_ADMIN_PASSWORD="s3cret-pass",
+        )
+        user = get_user_model().objects.get(username="boss")
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.check_password("s3cret-pass"))
+
+    def test_skips_when_password_missing(self):
+        from django.contrib.auth import get_user_model
+
+        output = self._run(DJANGO_ADMIN_USERNAME="boss", DJANGO_ADMIN_PASSWORD="")
+        self.assertIn("skipping", output)
+        self.assertFalse(get_user_model().objects.filter(username="boss").exists())
+
+    def test_idempotent(self):
+        from django.contrib.auth import get_user_model
+
+        env = {"DJANGO_ADMIN_USERNAME": "boss", "DJANGO_ADMIN_PASSWORD": "s3cret-pass"}
+        self._run(**env)
+        output = self._run(**env)
+        self.assertIn("already exists", output)
+        self.assertEqual(get_user_model().objects.filter(username="boss").count(), 1)
