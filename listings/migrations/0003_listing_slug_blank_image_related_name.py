@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("listings", "0002_listing_position_delete_geoposition"),
     ]
@@ -25,9 +24,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="image",
             name="default",
-            field=models.BooleanField(
-                default=False, help_text="Use as the listing's cover image."
-            ),
+            field=models.BooleanField(default=False, help_text="Use as the listing's cover image."),
         ),
         migrations.AlterField(
             model_name="image",
@@ -41,9 +38,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="image",
             name="name",
-            field=models.CharField(
-                help_text="Used as the image's alt text.", max_length=255
-            ),
+            field=models.CharField(help_text="Used as the image's alt text.", max_length=255),
         ),
         migrations.AlterField(
             model_name="listing",
@@ -63,8 +58,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="listing",
             name="status",
-            field=models.IntegerField(
-                choices=[(0, "Draft"), (1, "Published")], default=0
-            ),
+            field=models.IntegerField(choices=[(0, "Draft"), (1, "Published")], default=0),
         ),
     ]

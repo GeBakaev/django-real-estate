@@ -51,6 +51,11 @@ class Listing(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._build_unique_slug()
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse("post_detail", kwargs={"slug": self.slug})
 
@@ -69,11 +74,6 @@ class Listing(models.Model):
         if not images:
             return None
         return next((img for img in images if img.default), images[0])
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = self._build_unique_slug()
-        super().save(*args, **kwargs)
 
     def _build_unique_slug(self):
         base = slugify(self.title) or "listing"
