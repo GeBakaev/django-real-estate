@@ -1,0 +1,46 @@
+<footer class="bg-stone-950 text-stone-300">
+    <div class="container-x grid gap-12 py-16 md:grid-cols-3">
+        <div>
+            <p class="font-display text-xl font-bold uppercase tracking-wide text-white">{{ site_info.website_name }}</p>
+            <p class="mt-4 max-w-sm text-sm leading-relaxed">
+                A real estate agency in {{ site_info.business_location }}. We help you find the right property,
+                within budget, in the location that matches your taste and requirements.
+            </p>
+            <div class="mt-6">
+                {% include "partials/social_links.html" with link_class="flex size-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-brand-500" icon_class="size-4" %}
+            </div>
+        </div>
+        <div>
+            <h2 class="text-sm font-semibold uppercase tracking-widest text-white">Pages</h2>
+            <ul class="mt-4 space-y-3 text-sm">
+                <li><a href="{% url 'home' %}" class="transition hover:text-white">Home</a></li>
+                <li><a href="{% url 'properties' %}" class="transition hover:text-white">Properties</a></li>
+                <li><a href="{% url 'about-us' %}" class="transition hover:text-white">About us</a></li>
+                <li><a href="{% url 'contact-us' %}" class="transition hover:text-white">Contact us</a></li>
+            </ul>
+        </div>
+        <div>
+            <h2 class="text-sm font-semibold uppercase tracking-widest text-white">Contact</h2>
+            <ul class="mt-4 space-y-3 text-sm">
+                <li>
+                    <a href="mailto:{{ site_info.email }}" class="inline-flex items-center gap-2 transition hover:text-white">
+                        {% include "icons/envelope.svg" with icon_class="size-4" %}{{ site_info.email }}
+                    </a>
+                </li>
+                <li>
+                    <a href="tel:{{ site_info.phone_number|cut:' ' }}" class="inline-flex items-center gap-2 transition hover:text-white">
+                        {% include "icons/phone.svg" with icon_class="size-4" %}{{ site_info.phone_number }}
+                    </a>
+                </li>
+                <li class="inline-flex items-center gap-2">
+                    {% include "icons/map-pin.svg" with icon_class="size-4" %}{{ site_info.business_location }}
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="border-t border-white/10">
+        <div class="container-x py-6 text-center text-xs text-stone-400">
+            &copy; {% now "Y" %} {{ site_info.website_name }}. All rights reserved.
+        </div>
+    </div>
+</footer>

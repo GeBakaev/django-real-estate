@@ -1,0 +1,35 @@
+<header class="bg-stone-950 text-white">
+    <div class="hidden border-b border-white/10 md:block">
+        <div class="container-x flex h-10 items-center justify-between text-sm text-stone-300">
+            <div class="flex items-center gap-6">
+                <a href="mailto:{{ site_info.email }}" class="inline-flex items-center gap-2 transition hover:text-white">
+                    {% include "icons/envelope.svg" with icon_class="size-4" %}{{ site_info.email }}
+                </a>
+                <a href="tel:{{ site_info.phone_number|cut:' ' }}" class="inline-flex items-center gap-2 transition hover:text-white">
+                    {% include "icons/phone.svg" with icon_class="size-4" %}{{ site_info.phone_number }}
+                </a>
+            </div>
+            {% include "partials/social_links.html" with link_class="text-stone-300 transition hover:text-white" icon_class="size-4" %}
+        </div>
+    </div>
+
+    <nav class="container-x flex h-20 items-center justify-between" aria-label="Main navigation">
+        <a href="{% url 'home' %}" class="font-display text-xl font-bold uppercase tracking-wide">
+            {{ site_info.website_name }}
+        </a>
+        <div class="hidden md:block">
+            {% include "partials/nav_links.html" %}
+        </div>
+        <button id="nav-toggle" type="button" class="inline-flex items-center justify-center rounded-md p-2 text-stone-300 transition hover:bg-white/10 hover:text-white md:hidden" aria-controls="mobile-nav" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span data-icon>{% include "icons/bars.svg" with icon_class="size-6" %}</span>
+            <span data-icon class="hidden">{% include "icons/x-mark.svg" with icon_class="size-6" %}</span>
+        </button>
+    </nav>
+
+    <div id="mobile-nav" class="hidden border-t border-white/10 md:hidden">
+        <div class="container-x py-2">
+            {% include "partials/nav_links.html" with mobile=True %}
+        </div>
+    </div>
+</header>

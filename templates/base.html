@@ -1,0 +1,51 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Home{% endblock %} · {{ site_info.website_name }}</title>
+    <meta name="description" content="{% block meta_description %}{{ site_info.website_name }}: properties for sale in {{ site_info.business_location }}.{% endblock %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% block head %}{% endblock %}
+</head>
+<body class="flex min-h-full flex-col bg-white font-sans text-stone-700 antialiased">
+    {% include "partials/nav.html" %}
+
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/footer.html" %}
+    {% include "partials/messages.html" %}
+
+    <script>
+        (function () {
+            var toggle = document.getElementById("nav-toggle");
+            var menu = document.getElementById("mobile-nav");
+            if (toggle && menu) {
+                toggle.addEventListener("click", function () {
+                    var open = !menu.classList.toggle("hidden");
+                    toggle.setAttribute("aria-expanded", String(open));
+                    toggle.querySelectorAll("[data-icon]").forEach(function (icon) {
+                        icon.classList.toggle("hidden");
+                    });
+                });
+            }
+            document.querySelectorAll("[data-dismiss]").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    button.closest("[data-toast]").remove();
+                });
+            });
+            window.setTimeout(function () {
+                document.querySelectorAll("[data-toast]").forEach(function (toast) {
+                    toast.remove();
+                });
+            }, 8000);
+        })();
+    </script>
+    {% block javascript %}{% endblock %}
+</body>
+</html>

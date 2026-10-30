@@ -1,0 +1,78 @@
+/* Source stylesheet. Build with `scripts/tailwind`; the output is static/css/site.css.
+   Kept outside static/ so collectstatic never tries to process it. */
+@import "tailwindcss" source(none);
+
+@source "../templates";
+@source "../listings";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #fdf2f4;
+  --color-brand-100: #fbe1e5;
+  --color-brand-400: #e8445b;
+  --color-brand-500: #d2122e;
+  --color-brand-600: #b00f27;
+  --color-brand-700: #8e0c20;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wide transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500;
+  }
+  .btn-primary {
+    @apply bg-brand-500 text-white hover:bg-brand-600;
+  }
+  .btn-outline {
+    @apply border-2 border-white text-white hover:bg-white hover:text-brand-600;
+  }
+
+  .eyebrow {
+    @apply text-sm font-semibold uppercase tracking-widest text-brand-500;
+  }
+  /* Eyebrow for use over photos, where plain red text is hard to read. */
+  .eyebrow-pill {
+    @apply inline-block rounded-full bg-brand-500 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white;
+  }
+  .section-title {
+    @apply font-display text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl;
+  }
+  .section-title em {
+    @apply not-italic text-brand-500;
+  }
+
+  .nav-link {
+    @apply text-sm font-medium tracking-wide text-stone-300 transition hover:text-white;
+  }
+  .nav-link-active {
+    @apply text-white underline decoration-brand-500 decoration-2 underline-offset-8;
+  }
+  .nav-link-mobile {
+    @apply block py-3 text-base no-underline;
+  }
+  .nav-link-mobile.nav-link-active {
+    @apply text-brand-400;
+  }
+
+  .field-input {
+    @apply block w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-stone-900 shadow-sm transition placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+  }
+
+  .page-link {
+    @apply inline-flex size-10 items-center justify-center rounded-lg text-sm font-medium text-stone-700 transition hover:bg-stone-100;
+  }
+  .page-link-active {
+    @apply bg-brand-500 text-white hover:bg-brand-500;
+  }
+}

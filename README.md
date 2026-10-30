@@ -1,8 +1,7 @@
 # Django Real Estate Website (2025 Update)
 
-A Real Estate Agent website build using HTML, CSS and Django.
+A Real Estate Agent website built with Django and Tailwind CSS.
 This website serves as a listing directory for a real estate agent.
-Clear and simple design using CSS and Bootstrap.
 Most of the information visible on the website can be updated from the admin panel without the use of code.
 
 **Tested on Python 3.12.9 and Django 5.2**
@@ -16,7 +15,7 @@ Most of the information visible on the website can be updated from the admin pan
 
 ## Features
 
-- Responsive and Mobile Friendly Design using Bootstrap.
+- Responsive, mobile-friendly design built with Tailwind CSS (no JavaScript framework).
 - Add Listings with multiple images from Admin Panel.
 - Change Website Information from Admin Panel.
 - Map on every listing (OpenStreetMap via Leaflet, no API key needed).
@@ -42,15 +41,23 @@ DEBUG=1 .venv/bin/python manage.py runserver
 
 Without a `.env` the app falls back to SQLite and a development secret key.
 
+### Styling
+
+The stylesheet is compiled from `tailwind/site.css` with the Tailwind CSS standalone CLI
+(no Node required). `scripts/tailwind` downloads the pinned release on first use:
+
+```bash
+scripts/tailwind            # one-off minified build -> static/css/site.css
+scripts/tailwind --watch    # rebuild as templates change
+```
+
+The compiled `static/css/site.css` is committed, so deployments need no build step. CI fails if
+it is out of date, so rebuild after changing templates or `tailwind/site.css`.
+
 ## Changing Website Information and Adding Listings
 
 If you need to change the information contained on the website. Most of information are stored in the database and can be changed from the admin panel (/admin). You can access the admin panel using the admin information you added in step 2.
 Listings can also be added or updated from the admin panel.
-
-## TODO
-
-- Better Responsive Images.
-- Update Images, Better CSS styling.
 
 ## Images
 

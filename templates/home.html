@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="relative isolate flex min-h-[85vh] items-center overflow-hidden bg-stone-950 text-white">
+    <img src="{% static 'images/hero.webp' %}" alt="" class="absolute inset-0 -z-10 size-full object-cover opacity-50" fetchpriority="high">
+    <div class="container-x py-32 text-center">
+        <p class="eyebrow-pill">&ldquo; Invest without limits &rdquo;</p>
+        <h1 class="mx-auto mt-4 max-w-4xl font-display text-4xl font-bold uppercase leading-tight tracking-wide sm:text-5xl lg:text-6xl">
+            Premier real estate, from vacant land to your future home
+        </h1>
+        <p class="mx-auto mt-6 max-w-2xl text-lg text-stone-300">
+            Hand-picked properties for sale across {{ site_info.business_location }}.
+        </p>
+        <div class="mt-10 flex flex-wrap justify-center gap-4">
+            <a href="{% url 'properties' %}" class="btn btn-primary">Browse properties</a>
+            <a href="{% url 'contact-us' %}" class="btn btn-outline">Contact us</a>
+        </div>
+    </div>
+</section>
+
+<section class="bg-brand-500 text-white">
+    <div class="container-x flex flex-col items-center justify-between gap-4 py-6 text-center sm:flex-row sm:text-left">
+        <p class="font-display text-xl font-semibold">Looking for something specific? Request a private call.</p>
+        <a href="{% url 'contact-us' %}" class="btn btn-outline">Request a call</a>
+    </div>
+</section>
+
+<section class="container-x py-20 sm:py-24">
+    <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+        <div>
+            <p class="eyebrow">Recently added</p>
+            <h2 class="section-title mt-2">Featured <em>properties</em></h2>
+        </div>
+        <a href="{% url 'properties' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-500 transition hover:text-brand-600">
+            View all properties {% include "icons/arrow-right.svg" with icon_class="size-4" %}
+        </a>
+    </div>
+    {% if listing_list %}
+        <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {% for listing in listing_list %}
+                {% include "partials/listing_card.html" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="mt-12 rounded-2xl border border-dashed border-stone-300 p-12 text-center text-stone-500">
+            No properties have been published yet. Check back soon.
+        </p>
+    {% endif %}
+</section>
+
+<section class="relative isolate overflow-hidden bg-stone-950 text-white">
+    <img src="{% static 'images/about-banner.webp' %}" alt="" class="absolute inset-0 -z-10 size-full object-cover opacity-30" loading="lazy">
+    <div class="container-x grid gap-12 py-24 lg:grid-cols-2 lg:items-center">
+        <div>
+            <p class="eyebrow text-brand-400">Who we are</p>
+            <h2 class="section-title mt-2 text-white">Get to know <em>about us</em></h2>
+            <p class="mt-6 text-lg leading-relaxed text-stone-300">{{ site_info.about_us|truncatewords:60 }}</p>
+            <a href="{% url 'about-us' %}" class="btn btn-primary mt-8">Read more</a>
+        </div>
+        <blockquote class="rounded-2xl bg-white/10 p-8 backdrop-blur">
+            <p class="font-display text-2xl font-medium leading-snug">
+                At {{ site_info.website_name }} we help you find the right property, within budget,
+                in the location that matches your taste and requirements.
+            </p>
+            <footer class="mt-4 text-sm text-stone-300">Buying a property in {{ site_info.business_location }}</footer>
+        </blockquote>
+    </div>
+</section>
+
+<section id="contact" class="container-x py-20 sm:py-24">
+    <div class="mx-auto max-w-3xl text-center">
+        <p class="eyebrow">Get more information</p>
+        <h2 class="section-title mt-2">Request a <em>call back</em></h2>
+    </div>
+    <div class="mx-auto mt-12 max-w-3xl rounded-2xl border border-stone-200 bg-stone-50 p-6 sm:p-10">
+        {% include "partials/contact_form.html" with form_action="#contact" %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,6 @@
+<ul class="{% if mobile %}flex flex-col divide-y divide-white/10{% else %}flex items-center gap-8{% endif %}">
+    <li><a href="{% url 'home' %}" class="nav-link{% if mobile %} nav-link-mobile{% endif %}{% if nbar == 'Home' %} nav-link-active{% endif %}"{% if nbar == 'Home' %} aria-current="page"{% endif %}>Home</a></li>
+    <li><a href="{% url 'properties' %}" class="nav-link{% if mobile %} nav-link-mobile{% endif %}{% if nbar == 'Properties' %} nav-link-active{% endif %}"{% if nbar == 'Properties' %} aria-current="page"{% endif %}>Properties</a></li>
+    <li><a href="{% url 'about-us' %}" class="nav-link{% if mobile %} nav-link-mobile{% endif %}{% if nbar == 'About' %} nav-link-active{% endif %}"{% if nbar == 'About' %} aria-current="page"{% endif %}>About</a></li>
+    <li><a href="{% url 'contact-us' %}" class="nav-link{% if mobile %} nav-link-mobile{% endif %}{% if nbar == 'Contact' %} nav-link-active{% endif %}"{% if nbar == 'Contact' %} aria-current="page"{% endif %}>Contact</a></li>
+</ul>

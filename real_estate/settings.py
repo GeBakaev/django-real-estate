@@ -57,9 +57,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    # 3rd party apps
-    "crispy_forms",
-    "crispy_bootstrap5",
     # local apps
     "listings",
 ]
@@ -79,7 +76,7 @@ ROOT_URLCONF = "real_estate.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates" / "layout", BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -151,10 +148,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 # Source assets live in ./static; `collectstatic` gathers everything into ./staticfiles.
+# The stylesheet is compiled from tailwind/site.css with `scripts/tailwind`.
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    # Hashed filenames (site.<hash>.css) so nginx's long cache lifetime never serves a stale
+    # stylesheet after a deploy. Falls back to plain names until collectstatic has run.
+    "staticfiles": {"BACKEND": "real_estate.storage.ManifestStaticFilesStorage"},
+}
 
 # Media files (user uploads)
 MEDIA_URL = "/media/"
@@ -162,8 +167,3 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Pagination
 PAGINATION_LIMIT = 9
-
-# Crispy forms
-# https://github.com/django-crispy-forms/crispy-bootstrap5
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"

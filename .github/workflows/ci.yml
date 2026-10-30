@@ -18,6 +18,14 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
 
+  css:
+    name: Stylesheet is up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/tailwind
+      - run: git diff --exit-code -- static/css/site.css
+
   test:
     name: Django checks and tests
     runs-on: ubuntu-latest

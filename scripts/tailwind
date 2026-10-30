@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Build the site stylesheet with the Tailwind CSS standalone CLI.
+#
+# The pinned release is downloaded into .tailwind/ (git-ignored) on first use and
+# its checksum is verified, so neither Node nor npm is needed.
+#
+#   scripts/tailwind            # one-off minified build -> static/css/site.css
+#   scripts/tailwind --watch    # rebuild on template changes while developing
+set -euo pipefail
+
+VERSION="v4.3.3"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BIN_DIR="$ROOT/.tailwind"
+BASE_URL="https://github.com/tailwindlabs/tailwindcss/releases/download/$VERSION"
+
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64) ASSET=tailwindcss-macos-arm64 ;;
+  Darwin-x86_64) ASSET=tailwindcss-macos-x64 ;;
+  Linux-aarch64 | Linux-arm64) ASSET=tailwindcss-linux-arm64 ;;
+  Linux-x86_64) ASSET=tailwindcss-linux-x64 ;;
+  *) echo "Unsupported platform: $(uname -s)-$(uname -m)" >&2; exit 1 ;;
+esac
+
+BIN="$BIN_DIR/tailwindcss-$VERSION"
+if [ ! -x "$BIN" ]; then
+  echo "Downloading Tailwind CSS $VERSION ($ASSET)..." >&2
+  mkdir -p "$BIN_DIR"
+  curl -fsSL "$BASE_URL/$ASSET" -o "$BIN.tmp"
+  curl -fsSL "$BASE_URL/sha256sums.txt" -o "$BIN_DIR/sha256sums.txt"
+  # Checksum lines look like "<sha256>  ./tailwindcss-linux-x64" (prefix varies by release).
+  expected="$(grep -E "[[:space:]*](\./)?$ASSET\$" "$BIN_DIR/sha256sums.txt" | head -n1 | cut -d' ' -f1 || true)"
+  actual="$(shasum -a 256 "$BIN.tmp" | cut -d' ' -f1)"
+  if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+    echo "Checksum mismatch for $ASSET" >&2
+    rm -f "$BIN.tmp"
+    exit 1
+  fi
+  chmod +x "$BIN.tmp" && mv "$BIN.tmp" "$BIN"
+fi
+
+cd "$ROOT"
+exec "$BIN" --input tailwind/site.css --output static/css/site.css --minify "$@"

@@ -1,0 +1,6 @@
+<div class="{% if field.errors %}[&_.field-input]:border-red-500 [&_.field-input]:ring-2 [&_.field-input]:ring-red-500/20{% endif %}">
+    <label for="{{ field.id_for_label }}" class="mb-1.5 block text-sm font-medium text-stone-800">{{ field.label }}</label>
+    {{ field }}
+    {% for error in field.errors %}<p class="mt-1.5 text-sm text-red-600">{{ error }}</p>{% endfor %}
+    {% if field.help_text %}<p class="mt-1.5 text-sm text-stone-500">{{ field.help_text }}</p>{% endif %}
+</div>
