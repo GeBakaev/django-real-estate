@@ -1,0 +1,13 @@
+<form method="post" action="{{ form_action|default:'' }}" class="space-y-5">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="rounded-lg bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="grid gap-5 sm:grid-cols-2">
+        {% include "partials/field.html" with field=form.name %}
+        {% include "partials/field.html" with field=form.email %}
+    </div>
+    {% include "partials/field.html" with field=form.subject %}
+    {% include "partials/field.html" with field=form.message %}
+    <button type="submit" class="btn btn-primary w-full sm:w-auto">Send message</button>
+</form>

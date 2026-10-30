@@ -108,6 +108,28 @@ class ListingViewTests(TestCase):
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, 200)
 
+    def test_base_layout_uses_compiled_stylesheet(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "css/site.css")
+        self.assertNotContains(response, "bootstrap")
+
+    def test_active_nav_link_marked(self):
+        response = self.client.get(reverse("about-us"))
+        self.assertContains(response, 'aria-current="page"', count=2)  # desktop + mobile menus
+        self.assertContains(response, 'href="/about-us/" class="nav-link nav-link-active"')
+
+    def test_properties_pagination_links(self):
+        for i in range(10):
+            make_listing(title=f"Listing {i}")
+        response = self.client.get(reverse("properties"))
+        self.assertContains(response, 'href="?page=2#properties"')
+        self.assertContains(response, 'aria-label="Next page"')
+        self.assertNotContains(response, 'aria-label="Previous page"')
+
+    def test_properties_empty_state(self):
+        response = self.client.get(reverse("properties"))
+        self.assertContains(response, "No properties have been published yet")
+
 
 class ContactFormTests(TestCase):
     payload = {
@@ -135,6 +157,7 @@ class ContactFormTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contact.objects.count(), 0)
         self.assertTrue(response.context["form"].errors)
+        self.assertContains(response, "Enter a valid email address.")
 
 
 class WebsiteInfoTests(TestCase):

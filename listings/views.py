@@ -26,7 +26,7 @@ def home(request):
 
     listings = Listing.objects.published().prefetch_related("images")[:3]
     context = {"nbar": "Home", "listing_list": listings, "form": form}
-    return render(request, "index.html", context)
+    return render(request, "home.html", context)
 
 
 class PostList(generic.ListView):
@@ -36,6 +36,14 @@ class PostList(generic.ListView):
 
     def get_queryset(self):
         return Listing.objects.published().prefetch_related("images")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page_obj = context["page_obj"]
+        context["elided_page_range"] = page_obj.paginator.get_elided_page_range(
+            page_obj.number, on_each_side=1, on_ends=1
+        )
+        return context
 
 
 class PostDetail(generic.DetailView):

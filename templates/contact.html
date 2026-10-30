@@ -1,52 +1,48 @@
-{% extends "base.html" %} 
-{% load static %}
-{% load crispy_forms_tags %}
-{% block title %} Contact us {% endblock %}
+{% extends "base.html" %}
+{% block title %}Contact us{% endblock %}
 
 {% block content %}
-<div class="Top-Background">
-</div>
-<div class="callback-form">
-  <div class="container">
-    <div class="row">
+{% include "partials/page_header.html" with eyebrow="Contact us" title="Request a call back" subtitle="Tell us what you are looking for and we will get back to you shortly." %}
 
-      <div class="col-md-12">
-        <div class="section-heading">
-          <h2>Request a <em>call back</em></h2>
-          <span>Get More Information</span>
+<section class="container-x grid gap-12 py-20 sm:py-24 lg:grid-cols-5">
+    <aside class="lg:col-span-2">
+        <h2 class="section-title">Get in <em>touch</em></h2>
+        <p class="mt-4 text-stone-600">Prefer to talk? Reach us directly.</p>
+        <ul class="mt-8 space-y-6">
+            <li class="flex gap-4">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
+                    {% include "icons/envelope.svg" with icon_class="size-5" %}
+                </span>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-stone-500">Email</p>
+                    <a href="mailto:{{ site_info.email }}" class="mt-1 block font-medium text-stone-900 transition hover:text-brand-500">{{ site_info.email }}</a>
+                </div>
+            </li>
+            <li class="flex gap-4">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
+                    {% include "icons/phone.svg" with icon_class="size-5" %}
+                </span>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-stone-500">Phone</p>
+                    <a href="tel:{{ site_info.phone_number|cut:' ' }}" class="mt-1 block font-medium text-stone-900 transition hover:text-brand-500">{{ site_info.phone_number }}</a>
+                </div>
+            </li>
+            <li class="flex gap-4">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
+                    {% include "icons/map-pin.svg" with icon_class="size-5" %}
+                </span>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-stone-500">Location</p>
+                    <p class="mt-1 font-medium text-stone-900">{{ site_info.business_location }}</p>
+                </div>
+            </li>
+        </ul>
+        <div class="mt-8">
+            {% include "partials/social_links.html" with link_class="flex size-10 items-center justify-center rounded-full bg-stone-100 text-stone-700 transition hover:bg-brand-500 hover:text-white" icon_class="size-4" %}
         </div>
-      </div>
-
-      <div class="col-md-12">
-        <div class="contact-form">
-          <form id="contact" action="" method="post">
-            {% csrf_token %}
-            <div class="row">
-              <div class="col-lg-4 col-md-12 col-sm-12">
-                {{ form.name|as_crispy_field }}
-              </div>
-              <div class="col-lg-4 col-md-12 col-sm-12">
-                {{ form.email|as_crispy_field }}
-              </div>
-              <div class="col-lg-4 col-md-12 col-sm-12">
-                {{ form.subject|as_crispy_field }}
-              </div>
-              <div class="col-lg-12">
-                {{ form.message|as_crispy_field }}
-              </div>
-              <div class="col-lg-12">
-                <fieldset>
-                  <button type="submit" id="form-submit" class="border-button">Send Message</button>
-                </fieldset>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
+    </aside>
+    <div class="rounded-2xl border border-stone-200 bg-stone-50 p-6 sm:p-10 lg:col-span-3">
+        {% include "partials/contact_form.html" %}
     </div>
-
-    {% comment %} Spacing {% endcomment %}
-    <br><br><br><br>
-  </div>
-</div>
-{%endblock%}
+</section>
+{% endblock %}
