@@ -15,15 +15,9 @@ TINY_GIF = (
 
 
 def make_listing(title="Sea View Villa", status=Listing.Status.PUBLISHED, **kwargs):
-    return Listing.objects.create(
-        title=title,
-        price=250000,
-        area=180,
-        description="A lovely place.",
-        location="Beirut",
-        status=status,
-        **kwargs,
-    )
+    fields = {"price": 250000, "area": 180, "description": "A lovely place.", "location": "Beirut"}
+    fields.update(kwargs)
+    return Listing.objects.create(title=title, status=status, **fields)
 
 
 class ListingModelTests(TestCase):
@@ -129,6 +123,123 @@ class ListingViewTests(TestCase):
     def test_properties_empty_state(self):
         response = self.client.get(reverse("properties"))
         self.assertContains(response, "No properties have been published yet")
+
+
+class ListingFilterTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.cheap = make_listing(
+            title="Studio in Tripoli", location="Tripoli", price=90000, area=45
+        )
+        cls.mid = make_listing(title="Flat in Beirut", location="Beirut", price=250000, area=120)
+        cls.big = make_listing(title="Villa in Batroun", location="Batroun", price=900000, area=400)
+        make_listing(title="Draft in Beirut", location="Beirut", status=Listing.Status.DRAFT)
+
+    def titles(self, **params):
+        response = self.client.get(reverse("properties"), params)
+        self.assertEqual(response.status_code, 200)
+        return [item.title for item in response.context["page_obj"]]
+
+    def test_default_order_is_newest_first(self):
+        self.assertEqual(self.titles(), ["Villa in Batroun", "Flat in Beirut", "Studio in Tripoli"])
+
+    def test_filter_by_location(self):
+        self.assertEqual(self.titles(location="Beirut"), ["Flat in Beirut"])
+
+    def test_filter_by_price_range(self):
+        self.assertEqual(self.titles(min_price=100000, max_price=300000), ["Flat in Beirut"])
+
+    def test_filter_by_min_area(self):
+        self.assertEqual(self.titles(min_area=120), ["Villa in Batroun", "Flat in Beirut"])
+
+    def test_search_matches_title_and_location(self):
+        self.assertEqual(self.titles(q="villa"), ["Villa in Batroun"])
+        self.assertEqual(self.titles(q="tripoli"), ["Studio in Tripoli"])
+
+    def test_sort_by_price(self):
+        self.assertEqual(
+            self.titles(sort="price_asc"),
+            ["Studio in Tripoli", "Flat in Beirut", "Villa in Batroun"],
+        )
+        self.assertEqual(self.titles(sort="price_desc")[0], "Villa in Batroun")
+
+    def test_invalid_values_are_ignored(self):
+        self.assertEqual(len(self.titles(min_price="abc", sort="bogus")), 3)
+
+    def test_location_choices_only_from_published(self):
+        response = self.client.get(reverse("properties"))
+        choices = [value for value, _ in response.context["filter_form"].fields["location"].choices]
+        self.assertEqual(choices, ["", "Batroun", "Beirut", "Tripoli"])
+
+    def test_results_count_mentions_filters(self):
+        response = self.client.get(reverse("properties"), {"location": "Beirut"})
+        self.assertContains(response, "1 property matches your filters")
+        response = self.client.get(reverse("properties"), {"min_price": 5_000_000})
+        self.assertContains(response, "No properties match these filters")
+
+    def test_htmx_request_gets_results_partial(self):
+        response = self.client.get(
+            reverse("properties"), {"location": "Beirut"}, headers={"HX-Request": "true"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Flat in Beirut")
+        self.assertNotContains(response, "<html")
+        self.assertIn("HX-Request", response.headers["Vary"])
+
+    def test_pagination_keeps_filters(self):
+        for i in range(9):
+            make_listing(title=f"Beirut {i}", location="Beirut")
+        response = self.client.get(
+            reverse("properties"), {"location": "Beirut", "sort": "price_asc"}
+        )
+        self.assertContains(
+            response, 'href="?location=Beirut&amp;sort=price_asc&amp;page=2#properties"'
+        )
+
+
+class GalleryTests(TestCase):
+    def setUp(self):
+        media_root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, media_root, ignore_errors=True)
+        self.override = override_settings(MEDIA_ROOT=media_root)
+        self.override.enable()
+        self.addCleanup(self.override.disable)
+        self.listing = make_listing()
+
+    def add_image(self, name, default=False):
+        return Image.objects.create(
+            listing=self.listing,
+            name=name,
+            image=SimpleUploadedFile(f"{name}.gif", TINY_GIF),
+            default=default,
+        )
+
+    def test_gallery_images_put_cover_first(self):
+        first = self.add_image("first")
+        cover = self.add_image("cover", default=True)
+        self.assertEqual(self.listing.gallery_images, [cover, first])
+        self.assertEqual(Listing.objects.get(pk=self.listing.pk).gallery_images, [cover, first])
+
+    def test_single_image_has_no_controls(self):
+        self.add_image("only")
+        response = self.client.get(self.listing.get_absolute_url())
+        self.assertContains(response, "data-gallery-main")
+        self.assertNotContains(response, "data-gallery-thumb")
+        self.assertNotContains(response, "data-gallery-next")
+
+    def test_multiple_images_render_thumbnails_and_script(self):
+        self.add_image("a")
+        self.add_image("b")
+        self.add_image("c")
+        response = self.client.get(self.listing.get_absolute_url())
+        self.assertContains(response, "data-gallery-thumb", count=3)
+        self.assertContains(response, "1 / 3")
+        self.assertContains(response, "js/gallery.js")
+
+    def test_no_images_no_gallery(self):
+        response = self.client.get(self.listing.get_absolute_url())
+        self.assertNotContains(response, "data-gallery")
+        self.assertNotContains(response, "js/gallery.js")
 
 
 class ContactFormTests(TestCase):

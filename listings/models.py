@@ -68,12 +68,19 @@ class Listing(models.Model):
         return self.latitude is not None and self.longitude is not None
 
     @property
-    def cover_image(self):
-        """First image marked as default, else the first image, else None."""
+    def gallery_images(self):
+        """All images with the cover first. Uses the prefetched images when available."""
         images = list(self.images.all())
         if not images:
-            return None
-        return next((img for img in images if img.default), images[0])
+            return []
+        cover = next((img for img in images if img.default), images[0])
+        return [cover] + [img for img in images if img is not cover]
+
+    @property
+    def cover_image(self):
+        """First image marked as default, else the first image, else None."""
+        images = self.gallery_images
+        return images[0] if images else None
 
     def _build_unique_slug(self):
         base = slugify(self.title) or "listing"

@@ -69,6 +69,15 @@
     @apply block w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-stone-900 shadow-sm transition placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
   }
 
+  .gallery-arrow {
+    @apply absolute top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-800 shadow transition hover:bg-white focus-visible:outline-2 focus-visible:outline-brand-500;
+  }
+
+  /* htmx marks the results block while a filter request is in flight. */
+  .htmx-request {
+    @apply opacity-50;
+  }
+
   .page-link {
     @apply inline-flex size-10 items-center justify-center rounded-lg text-sm font-medium text-stone-700 transition hover:bg-stone-100;
   }

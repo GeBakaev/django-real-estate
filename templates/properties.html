@@ -1,28 +1,36 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Properties{% endblock %}
+
+{% block head %}
+    <script src="https://unpkg.com/htmx.org@2.0.11/dist/htmx.min.js" integrity="sha384-2OatzQy1H+Zd/IIrjr1TcuDGqLXeHhbooAyJY1KdQMKnr4LZ22k31GBLdYKHmVjg" crossorigin="anonymous" defer></script>
+{% endblock %}
 
 {% block content %}
 {% include "partials/page_header.html" with eyebrow="Properties" title="Your next dream home" image="images/hero.webp" %}
 
-<section id="properties" class="container-x py-20 sm:py-24">
-    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-            <p class="eyebrow">For sale</p>
-            <h2 class="section-title mt-2">All <em>properties</em></h2>
+<section id="properties" class="container-x py-16 sm:py-20">
+    <form method="get" action="{% url 'properties' %}#properties"
+          class="rounded-2xl border border-stone-200 bg-stone-50 p-5 sm:p-6"
+          hx-get="{% url 'properties' %}" hx-target="#results" hx-indicator="#results"
+          hx-trigger="submit, change, keyup changed delay:400ms from:#id_q" hx-sync="this:replace"
+          hx-push-url="true">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="lg:col-span-2">{% include "partials/field.html" with field=filter_form.q %}</div>
+            {% include "partials/field.html" with field=filter_form.location %}
+            {% include "partials/field.html" with field=filter_form.sort %}
+            {% include "partials/field.html" with field=filter_form.min_price %}
+            {% include "partials/field.html" with field=filter_form.max_price %}
+            {% include "partials/field.html" with field=filter_form.min_area %}
+            <div class="flex items-end gap-3">
+                <button type="submit" class="btn btn-primary flex-1">Apply</button>
+                <a href="{% url 'properties' %}#properties" class="btn border border-stone-300 bg-white text-stone-700 hover:border-stone-400">Reset</a>
+            </div>
         </div>
-        <p class="text-sm text-stone-500">{{ paginator.count }} propert{{ paginator.count|pluralize:"y,ies" }}</p>
+    </form>
+
+    <div id="results" class="mt-10 transition-opacity">
+        {% include "partials/listing_results.html" %}
     </div>
-    {% if page_obj %}
-        <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {% for listing in page_obj %}
-                {% include "partials/listing_card.html" %}
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="mt-12 rounded-2xl border border-dashed border-stone-300 p-12 text-center text-stone-500">
-            No properties have been published yet. Check back soon.
-        </p>
-    {% endif %}
-    {% include "partials/pagination.html" %}
 </section>
 {% endblock %}

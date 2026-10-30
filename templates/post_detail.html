@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize static %}
 {% block title %}{{ object.title }}{% endblock %}
 {% block meta_description %}{{ object.description|striptags|truncatechars:155 }}{% endblock %}
 
@@ -28,14 +28,10 @@
         </div>
     </header>
 
-    {% with images=object.images.all %}
+    {% with images=object.gallery_images %}
     {% if images %}
-    <div class="mt-10 grid gap-4{% if images|length > 1 %} lg:grid-cols-3{% endif %}">
-        {% for image in images %}
-            <img src="{{ image.image.url }}" alt="{{ image.name|default:object.title }}"
-                 class="aspect-4/3 w-full rounded-2xl object-cover{% if forloop.first and images|length > 1 %} lg:col-span-2 lg:row-span-2 lg:aspect-auto lg:h-full{% endif %}"
-                 {% if not forloop.first %}loading="lazy"{% endif %}>
-        {% endfor %}
+    <div class="mt-10">
+        {% include "partials/gallery.html" with images=images title=object.title %}
     </div>
     {% endif %}
     {% endwith %}
@@ -65,6 +61,9 @@
 {% endblock %}
 
 {% block javascript %}
+    {% if object.images.exists %}
+    <script src="{% static 'js/gallery.js' %}" defer></script>
+    {% endif %}
     {% if object.has_coordinates %}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>

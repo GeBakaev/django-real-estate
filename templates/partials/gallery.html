@@ -1,0 +1,29 @@
+{% with count=images|length %}
+<div data-gallery class="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-4"
+     {% if count > 1 %}tabindex="0" role="region" aria-roledescription="carousel" aria-label="Property photos"{% endif %}>
+    <div class="relative aspect-16/10 overflow-hidden rounded-2xl bg-stone-100">
+        <img data-gallery-main src="{{ images.0.image.url }}" alt="{{ images.0.name|default:title }}" class="size-full object-cover">
+        {% if count > 1 %}
+            <button type="button" data-gallery-prev class="gallery-arrow left-3" aria-label="Previous photo">
+                {% include "icons/chevron-left.svg" with icon_class="size-5" %}
+            </button>
+            <button type="button" data-gallery-next class="gallery-arrow right-3" aria-label="Next photo">
+                {% include "icons/chevron-right.svg" with icon_class="size-5" %}
+            </button>
+            <span data-gallery-counter class="absolute bottom-3 right-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">1 / {{ count }}</span>
+        {% endif %}
+    </div>
+    {% if count > 1 %}
+        <div class="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-6">
+            {% for image in images %}
+                <button type="button" data-gallery-thumb {% if forloop.first %}data-active{% endif %}
+                        data-src="{{ image.image.url }}" data-alt="{{ image.name|default:title }}"
+                        class="aspect-4/3 overflow-hidden rounded-lg ring-2 ring-transparent transition hover:ring-brand-400 data-active:ring-brand-500"
+                        aria-label="Show photo {{ forloop.counter }} of {{ count }}">
+                    <img src="{{ image.image.url }}" alt="" class="size-full object-cover" loading="lazy">
+                </button>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endwith %}
