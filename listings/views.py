@@ -40,10 +40,7 @@ class PostList(generic.ListView):
 
 class PostDetail(generic.DetailView):
     template_name = "post_detail.html"
-    extra_context = {
-        "nbar": "Properties",
-        "GOOGLE_MAP_KEY": settings.GEOPOSITION_GOOGLE_MAPS_API_KEY,
-    }
+    extra_context = {"nbar": "Properties"}
 
     def get_queryset(self):
         # Drafts must never be reachable by guessing the slug.

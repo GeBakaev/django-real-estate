@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     # 3rd party apps
     "crispy_forms",
     "crispy_bootstrap5",
-    "geoposition",
     # local apps
     "listings",
 ]
@@ -160,9 +159,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Media files (user uploads)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-# Google Geo-Position (admin map widget)
-GEOPOSITION_GOOGLE_MAPS_API_KEY = os.environ.get("GEOPOSITION_GOOGLE_MAPS_API_KEY")
 
 # Pagination
 PAGINATION_LIMIT = 9

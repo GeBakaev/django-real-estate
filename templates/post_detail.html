@@ -33,8 +33,9 @@
           
           <p class="text-muted-details">${{ object.price|intcomma }} | {{ object.location }} | {{ object.area }}<sup>m2</sup></p>
           <p class="card-text-details">{{ object.description|linebreaks }}</p>
-          {% comment %} Render Map {% endcomment %}
-          <div id="map"></div>
+          {% if object.has_coordinates %}
+          <div id="map" style="height: 400px;" data-lat="{{ object.latitude }}" data-lng="{{ object.longitude }}"></div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -44,34 +45,20 @@
 {% endblock content %}
 
 {% block javascript %}
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAP_KEY}}&callback=initMap&v=weekly"
-    defer
-    loading="async"
-  ></script>
-
-  <script type="text/javascript">
-
-    function initMap() {
-      // Split Lat, long
-      let split_location_str = "{{ object.position | safe }}"
-      let split_location_array = split_location_str.split(",")
-      let lat_float = parseFloat(split_location_array[0])
-      let long_float = parseFloat(split_location_array[1])
-      // The location
-      const ulocation = { lat: lat_float, lng: long_float };
-      // The map, centered
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 4,
-        center: ulocation,
-      });
-      // The marker, positioned at ulocation
-      const marker = new google.maps.Marker({
-        position: ulocation,
-        map: map,
-      });
-    }
-    window.initMap = initMap;
-
+  {% if object.has_coordinates %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    (function () {
+      var el = document.getElementById("map");
+      var point = [parseFloat(el.dataset.lat), parseFloat(el.dataset.lng)];
+      var map = L.map(el).setView(point, 14);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      L.marker(point).addTo(map).bindPopup("{{ object.title|escapejs }}");
+    })();
   </script>
+  {% endif %}
 {% endblock javascript %}

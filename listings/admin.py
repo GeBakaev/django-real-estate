@@ -2,6 +2,9 @@ from django.contrib import admin
 
 from .models import Contact, Image, Listing, WebsiteInfo
 
+LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+
 
 class ImageInline(admin.TabularInline):
     model = Image
@@ -16,6 +19,20 @@ class ListingAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("title", "description", "location")
     prepopulated_fields = {"slug": ("title",)}
+    fieldsets = (
+        (None, {"fields": ("title", "slug", "status", "price", "area", "description")}),
+        (
+            "Location",
+            {
+                "fields": ("location", ("latitude", "longitude")),
+                "description": "Click the map or drag the marker to set the coordinates.",
+            },
+        ),
+    )
+
+    class Media:
+        css = {"all": (LEAFLET_CSS,)}
+        js = (LEAFLET_JS, "listings/admin_map.js")
 
 
 @admin.register(Contact)

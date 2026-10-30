@@ -19,7 +19,7 @@ Most of the information visible on the website can be updated from the admin pan
 - Responsive and Mobile Friendly Design using Bootstrap.
 - Add Listings with multiple images from Admin Panel.
 - Change Website Information from Admin Panel.
-- Integrated Google Maps Coordinate System.
+- Map on every listing (OpenStreetMap via Leaflet, no API key needed).
 
 ## Installation
 
@@ -28,7 +28,6 @@ Most of the information visible on the website can be updated from the admin pan
    - Generate a secret key: `python -c "import secrets; print(secrets.token_urlsafe())"` and set `SECRET_KEY`.
    - Change the database name, username and password.
    - Set the initial admin username, email and password. The account is created on first start; leave the password empty to skip it.
-   - Optional: a Google Maps API key for the admin map widget: https://developers.google.com/maps/documentation/javascript/get-api-key
    - Set `DEBUG=0` and `USE_HTTPS=1` when deploying behind TLS.
 3. Run `docker compose up --build`. On start the web container applies migrations, collects static files and creates the admin user; nginx serves the site on port 80 and static/media files directly.
 
