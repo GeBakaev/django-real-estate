@@ -1,6 +1,5 @@
 from django.db import migrations, models
 import django.db.models.deletion
-import geoposition.fields
 
 
 class Migration(migrations.Migration):
@@ -63,7 +62,7 @@ class Migration(migrations.Migration):
                     "id",
                     models.AutoField(db_column="id", primary_key=True, serialize=False),
                 ),
-                ("position", geoposition.fields.GeopositionField(max_length=42)),
+                ("position", models.CharField(max_length=42)),
                 (
                     "listing",
                     models.OneToOneField(

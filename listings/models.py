@@ -1,7 +1,7 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from geoposition.fields import GeopositionField
 
 
 class ListingQuerySet(models.QuerySet):
@@ -28,7 +28,20 @@ class Listing(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=Status.choices, default=Status.DRAFT)
     location = models.CharField(max_length=200)
-    position = GeopositionField(default="0, 0")
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(-90), MaxValueValidator(90)],
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(-180), MaxValueValidator(180)],
+    )
 
     objects = ListingQuerySet.as_manager()
 
@@ -44,6 +57,10 @@ class Listing(models.Model):
     @property
     def is_published(self):
         return self.status == self.Status.PUBLISHED
+
+    @property
+    def has_coordinates(self):
+        return self.latitude is not None and self.longitude is not None
 
     @property
     def cover_image(self):

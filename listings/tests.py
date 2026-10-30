@@ -186,3 +186,41 @@ class EnsureSuperuserCommandTests(TestCase):
         output = self._run(**env)
         self.assertIn("already exists", output)
         self.assertEqual(get_user_model().objects.filter(username="boss").count(), 1)
+
+
+class CoordinateTests(TestCase):
+    def test_has_coordinates(self):
+        self.assertFalse(make_listing().has_coordinates)
+        listing = make_listing(title="Located", latitude="33.893800", longitude="35.501800")
+        self.assertTrue(listing.has_coordinates)
+
+    def test_out_of_range_coordinates_fail_validation(self):
+        from django.core.exceptions import ValidationError
+
+        listing = make_listing(title="Bad", latitude=95, longitude=0)
+        with self.assertRaises(ValidationError):
+            listing.full_clean()
+
+    def test_detail_renders_map_only_with_coordinates(self):
+        without = make_listing(title="No map")
+        response = self.client.get(without.get_absolute_url())
+        self.assertNotContains(response, 'id="map"')
+
+        with_map = make_listing(title="With map", latitude="33.893800", longitude="35.501800")
+        response = self.client.get(with_map.get_absolute_url())
+        self.assertContains(response, 'id="map"')
+        self.assertContains(response, 'data-lat="33.893800"')
+        self.assertContains(response, "leaflet.js")
+
+    def test_position_parser_from_migration(self):
+        from decimal import Decimal
+        from importlib import import_module
+
+        parse = import_module("listings.migrations.0004_listing_latitude_longitude").parse_position
+        self.assertEqual(parse("33.8938,35.5018"), (Decimal("33.8938"), Decimal("35.5018")))
+        self.assertEqual(parse("33.8938, 35.5018"), (Decimal("33.8938"), Decimal("35.5018")))
+        self.assertEqual(parse("0, 0"), (None, None))
+        self.assertEqual(parse(""), (None, None))
+        self.assertEqual(parse(None), (None, None))
+        self.assertEqual(parse("garbage"), (None, None))
+        self.assertEqual(parse("95,10"), (None, None))
