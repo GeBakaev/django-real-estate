@@ -52,7 +52,7 @@ class ListingModelTests(TestCase):
     def test_published_queryset_excludes_drafts(self):
         make_listing(title="Live")
         make_listing(title="Hidden", status=Listing.Status.DRAFT)
-        self.assertEqual([l.title for l in Listing.objects.published()], ["Live"])
+        self.assertEqual([item.title for item in Listing.objects.published()], ["Live"])
 
     def test_cover_image_prefers_default(self):
         media_root = tempfile.mkdtemp()
@@ -62,7 +62,9 @@ class ListingModelTests(TestCase):
 
     def _assert_cover_image_prefers_default(self):
         listing = make_listing()
-        Image.objects.create(listing=listing, name="first", image=SimpleUploadedFile("a.gif", TINY_GIF))
+        Image.objects.create(
+            listing=listing, name="first", image=SimpleUploadedFile("a.gif", TINY_GIF)
+        )
         cover = Image.objects.create(
             listing=listing, name="cover", image=SimpleUploadedFile("b.gif", TINY_GIF), default=True
         )
@@ -76,7 +78,7 @@ class ListingViewTests(TestCase):
         make_listing(title="Draft", status=Listing.Status.DRAFT)
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
-        titles = [l.title for l in response.context["listing_list"]]
+        titles = [item.title for item in response.context["listing_list"]]
         self.assertEqual(len(titles), 3)
         self.assertNotIn("Draft", titles)
 
@@ -127,7 +129,9 @@ class ContactFormTests(TestCase):
         self.assertEqual(Contact.objects.count(), 1)
 
     def test_invalid_post_rerenders_with_errors(self):
-        response = self.client.post(reverse("contact-us"), {**self.payload, "email": "not-an-email"})
+        response = self.client.post(
+            reverse("contact-us"), {**self.payload, "email": "not-an-email"}
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contact.objects.count(), 0)
         self.assertTrue(response.context["form"].errors)

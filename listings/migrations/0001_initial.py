@@ -3,7 +3,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -31,9 +30,7 @@ class Migration(migrations.Migration):
                 ("created_on", models.DateTimeField(auto_now_add=True)),
                 (
                     "status",
-                    models.IntegerField(
-                        choices=[(0, "Draft"), (1, "Publish")], default=0
-                    ),
+                    models.IntegerField(choices=[(0, "Draft"), (1, "Publish")], default=0),
                 ),
                 ("location", models.CharField(max_length=200)),
             ],
@@ -100,21 +97,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "facebook_link",
-                    models.URLField(
-                        default="https://facebook.com/example", max_length=255
-                    ),
+                    models.URLField(default="https://facebook.com/example", max_length=255),
                 ),
                 (
                     "instagram_link",
-                    models.URLField(
-                        default="https://instagram.com/example", max_length=255
-                    ),
+                    models.URLField(default="https://instagram.com/example", max_length=255),
                 ),
                 (
                     "linkedin_link",
-                    models.URLField(
-                        default="https://linked.in/example", max_length=255
-                    ),
+                    models.URLField(default="https://linked.in/example", max_length=255),
                 ),
                 ("about_us", models.TextField(default="About us info")),
                 ("properties_count", models.IntegerField(default=0)),

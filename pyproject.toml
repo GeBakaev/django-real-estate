@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["staticfiles", "media", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "DJ",  # flake8-django
+]
+ignore = [
+    "DJ001",  # null=True on CharField: existing schema, not worth a migration
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/migrations/*" = ["E501", "DJ", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["listings", "real_estate"]

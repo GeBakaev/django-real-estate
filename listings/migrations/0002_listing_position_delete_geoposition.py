@@ -4,18 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('listings', '0001_initial'),
+        ("listings", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='listing',
-            name='position',
-            field=models.CharField(default='0, 0', max_length=42),
+            model_name="listing",
+            name="position",
+            field=models.CharField(default="0, 0", max_length=42),
         ),
         migrations.DeleteModel(
-            name='GeoPosition',
+            name="GeoPosition",
         ),
     ]
