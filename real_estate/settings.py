@@ -167,3 +167,24 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Pagination
 PAGINATION_LIMIT = 9
+
+# Email
+# https://docs.djangoproject.com/en/5.2/topics/email/
+# Development prints mail to the console; production needs the SMTP variables in .env.
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", default=True)
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@localhost")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Where contact-form submissions are sent. Leave empty to disable notifications.
+CONTACT_NOTIFY_EMAILS = env_list("CONTACT_NOTIFY_EMAILS")

@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.utils.cache import patch_vary_headers
 from django.views import generic
 
+from .emails import notify_new_contact
 from .forms import ContactForm, ListingFilterForm
 from .models import Listing
 
@@ -14,7 +15,8 @@ def _handle_contact_form(request):
     """Bind the contact form; save and return True when a valid POST arrived."""
     form = ContactForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        form.save()
+        contact = form.save()
+        notify_new_contact(contact)
         messages.success(request, CONTACT_SUCCESS_MESSAGE)
         return form, True
     return form, False
