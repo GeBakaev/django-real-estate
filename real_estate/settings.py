@@ -186,6 +186,5 @@ EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@localhost")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-# Where contact-form submissions are sent. Empty means the site's own contact
-# address (WebsiteInfo.email in the admin).
+# Where contact-form submissions are sent. Leave empty to disable notifications.
 CONTACT_NOTIFY_EMAILS = env_list("CONTACT_NOTIFY_EMAILS")

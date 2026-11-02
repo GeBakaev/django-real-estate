@@ -296,23 +296,27 @@ class ContactFormTests(TestCase):
         self.assertRedirects(response, reverse("home"))
         self.assertEqual(Contact.objects.count(), 1)
 
-    def test_valid_post_notifies_site_email(self):
+    @override_settings(CONTACT_NOTIFY_EMAILS=["owner@acme.test", "sales@acme.test"])
+    def test_valid_post_notifies_configured_recipients(self):
         WebsiteInfo.objects.all().delete()
-        WebsiteInfo.objects.create(website_name="Acme Homes", email="owner@acme.test")
+        WebsiteInfo.objects.create(website_name="Acme Homes")
         self.client.post(reverse("contact-us"), self.payload)
         self.assertEqual(len(mail.outbox), 1)
         sent = mail.outbox[0]
-        self.assertEqual(sent.to, ["owner@acme.test"])
+        self.assertEqual(sent.to, ["owner@acme.test", "sales@acme.test"])
         self.assertEqual(sent.reply_to, ["jane@example.com"])
         self.assertEqual(sent.subject, "[Acme Homes] New inquiry: Viewing")
         self.assertIn("Can I see the villa?", sent.body)
         self.assertIn("Jane <jane@example.com>", sent.body)
 
-    @override_settings(CONTACT_NOTIFY_EMAILS=["a@x.test", "b@x.test"])
-    def test_env_recipients_override_site_email(self):
-        self.client.post(reverse("contact-us"), self.payload)
-        self.assertEqual(mail.outbox[0].to, ["a@x.test", "b@x.test"])
+    @override_settings(CONTACT_NOTIFY_EMAILS=[])
+    def test_no_recipients_means_no_email(self):
+        response = self.client.post(reverse("contact-us"), self.payload)
+        self.assertRedirects(response, reverse("contact-us"))
+        self.assertEqual(Contact.objects.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
 
+    @override_settings(CONTACT_NOTIFY_EMAILS=["owner@acme.test"])
     def test_mail_failure_does_not_break_submission(self):
         from unittest import mock
 
@@ -325,6 +329,7 @@ class ContactFormTests(TestCase):
         self.assertEqual(Contact.objects.count(), 1)
         self.assertIn("Could not send notification", logs.output[0])
 
+    @override_settings(CONTACT_NOTIFY_EMAILS=["owner@acme.test"])
     def test_invalid_post_sends_nothing(self):
         self.client.post(reverse("contact-us"), {**self.payload, "email": "nope"})
         self.assertEqual(len(mail.outbox), 0)
