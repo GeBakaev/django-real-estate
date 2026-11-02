@@ -15,12 +15,33 @@ class ImageInline(admin.TabularInline):
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
     inlines = (ImageInline,)
-    list_display = ("title", "status", "price", "location", "created_on")
-    list_filter = ("status",)
+    list_display = (
+        "title",
+        "status",
+        "property_type",
+        "price",
+        "bedrooms",
+        "location",
+        "created_on",
+    )
+    list_filter = ("status", "property_type")
     search_fields = ("title", "description", "location")
     prepopulated_fields = {"slug": ("title",)}
     fieldsets = (
-        (None, {"fields": ("title", "slug", "status", "price", "area", "description")}),
+        (
+            None,
+            {
+                "fields": (
+                    "title",
+                    "slug",
+                    "status",
+                    "property_type",
+                    ("price", "area"),
+                    ("bedrooms", "bathrooms"),
+                    "description",
+                )
+            },
+        ),
         (
             "Location",
             {
