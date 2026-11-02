@@ -19,6 +19,8 @@ Most of the information visible on the website can be updated from the admin pan
 - Add Listings with multiple images from Admin Panel.
 - Change Website Information from Admin Panel.
 - Map on every listing (OpenStreetMap via Leaflet, no API key needed).
+- Search, filter (location, price, area) and sort listings; results update in place via htmx and every filter state is a shareable URL.
+- Photo gallery on each listing with thumbnails, arrows, keyboard and swipe navigation.
 
 ## Installation
 

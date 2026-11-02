@@ -1,5 +1,6 @@
 {% if page_obj.has_other_pages %}
-<nav class="mt-12 flex items-center justify-center gap-1" aria-label="Pagination">
+<nav class="mt-12 flex items-center justify-center gap-1" aria-label="Pagination"
+     hx-boost="true" hx-target="#results" hx-swap="innerHTML show:#properties:top">
     {% if page_obj.has_previous %}
         <a href="{% querystring page=page_obj.previous_page_number %}#properties" class="page-link" aria-label="Previous page">
             {% include "icons/chevron-left.svg" with icon_class="size-4" %}
