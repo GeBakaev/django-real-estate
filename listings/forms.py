@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Q
 
-from .models import Contact
+from .models import Contact, Listing
 
 INPUT_CLASS = "field-input"
 
@@ -53,7 +53,16 @@ class ListingFilterForm(forms.Form):
         "price_desc": ("-price", "-created_on"),
         "area_desc": ("-area", "-created_on"),
     }
-    FILTER_FIELDS = ("q", "location", "min_price", "max_price", "min_area")
+    BEDROOM_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
+    FILTER_FIELDS = (
+        "q",
+        "location",
+        "property_type",
+        "min_bedrooms",
+        "min_price",
+        "max_price",
+        "min_area",
+    )
 
     q = forms.CharField(
         required=False,
@@ -62,6 +71,14 @@ class ListingFilterForm(forms.Form):
         widget=forms.TextInput(attrs={"type": "search", "placeholder": "Title, area or keyword"}),
     )
     location = forms.ChoiceField(required=False, label="Location")
+    property_type = forms.ChoiceField(
+        required=False,
+        label="Type",
+        choices=[("", "Any type")] + Listing.PropertyType.choices,
+    )
+    min_bedrooms = forms.TypedChoiceField(
+        required=False, label="Bedrooms", choices=BEDROOM_CHOICES, coerce=int, empty_value=None
+    )
     min_price = forms.IntegerField(
         required=False,
         min_value=0,
@@ -110,6 +127,10 @@ class ListingFilterForm(forms.Form):
             )
         if data.get("location"):
             queryset = queryset.filter(location=data["location"])
+        if data.get("property_type"):
+            queryset = queryset.filter(property_type=data["property_type"])
+        if data.get("min_bedrooms") is not None:
+            queryset = queryset.filter(bedrooms__gte=data["min_bedrooms"])
         if data.get("min_price") is not None:
             queryset = queryset.filter(price__gte=data["min_price"])
         if data.get("max_price") is not None:

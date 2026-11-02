@@ -1,0 +1,7 @@
+{% load humanize %}
+{% comment %}Compact facts line: "3 bed · 2 bath · 180 m²". Pass listing and an optional class.{% endcomment %}
+<ul class="{{ class|default:'flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-500' }}">
+    {% if listing.bedrooms is not None %}<li>{{ listing.bedrooms }} bed{{ listing.bedrooms|pluralize }}</li>{% endif %}
+    {% if listing.bathrooms is not None %}<li>{{ listing.bathrooms }} bath{{ listing.bathrooms|pluralize }}</li>{% endif %}
+    <li>{{ listing.area|intcomma }} m²</li>
+</ul>

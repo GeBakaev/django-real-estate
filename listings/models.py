@@ -14,6 +14,13 @@ class Listing(models.Model):
         DRAFT = 0, "Draft"
         PUBLISHED = 1, "Published"
 
+    class PropertyType(models.TextChoices):
+        APARTMENT = "apartment", "Apartment"
+        HOUSE = "house", "House"
+        VILLA = "villa", "Villa"
+        LAND = "land", "Land"
+        COMMERCIAL = "commercial", "Commercial"
+
     listing_id = models.AutoField(db_column="id", primary_key=True)
     title = models.CharField(max_length=200)
     slug = models.SlugField(
@@ -24,6 +31,17 @@ class Listing(models.Model):
     )
     price = models.IntegerField(default=0)
     area = models.IntegerField(default=0, help_text="Area in square metres.")
+    property_type = models.CharField(
+        max_length=20,
+        choices=PropertyType.choices,
+        blank=True,
+        default="",
+        help_text="Shown on the listing and used by the type filter.",
+    )
+    bedrooms = models.PositiveSmallIntegerField(
+        null=True, blank=True, help_text="Leave empty for land or commercial property."
+    )
+    bathrooms = models.PositiveSmallIntegerField(null=True, blank=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=Status.choices, default=Status.DRAFT)

@@ -17,14 +17,15 @@
 
     <header class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="inline-flex items-center gap-1.5 text-sm text-stone-500">
-                {% include "icons/map-pin.svg" with icon_class="size-4" %}{{ object.location }}
+            <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-500">
+                <span class="inline-flex items-center gap-1.5">{% include "icons/map-pin.svg" with icon_class="size-4" %}{{ object.location }}</span>
+                {% if object.property_type %}<span class="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-stone-600">{{ object.get_property_type_display }}</span>{% endif %}
             </p>
             <h1 class="mt-2 font-display text-3xl font-bold text-stone-900 sm:text-4xl">{{ object.title }}</h1>
         </div>
         <div class="sm:text-right">
             <p class="font-display text-3xl font-bold text-brand-500">${{ object.price|intcomma }}</p>
-            <p class="text-sm text-stone-500">{{ object.area|intcomma }} m²</p>
+            {% include "partials/listing_specs.html" with listing=object class="flex flex-wrap gap-x-3 text-sm text-stone-500 sm:justify-end" %}
         </div>
     </header>
 

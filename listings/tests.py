@@ -164,7 +164,15 @@ class ListingFilterTests(TestCase):
         self.assertEqual(self.titles(sort="price_desc")[0], "Villa in Batroun")
 
     def test_invalid_values_are_ignored(self):
-        self.assertEqual(len(self.titles(min_price="abc", sort="bogus")), 3)
+        self.assertEqual(len(self.titles(min_price="abc", sort="bogus", min_bedrooms="9")), 3)
+
+    def test_filter_by_property_type_and_bedrooms(self):
+        Listing.objects.filter(pk=self.big.pk).update(property_type="villa", bedrooms=4)
+        Listing.objects.filter(pk=self.mid.pk).update(property_type="apartment", bedrooms=2)
+        self.assertEqual(self.titles(property_type="villa"), ["Villa in Batroun"])
+        self.assertEqual(self.titles(min_bedrooms=2), ["Villa in Batroun", "Flat in Beirut"])
+        self.assertEqual(self.titles(min_bedrooms=3), ["Villa in Batroun"])
+        self.assertEqual(len(self.titles(property_type="castle")), 3)
 
     def test_location_choices_only_from_published(self):
         response = self.client.get(reverse("properties"))
@@ -195,6 +203,32 @@ class ListingFilterTests(TestCase):
         self.assertContains(
             response, 'href="?location=Beirut&amp;sort=price_asc&amp;page=2#properties"'
         )
+
+
+class ListingAttributeTests(TestCase):
+    def test_specs_rendered_on_card_and_detail(self):
+        make_listing(title="Family House", property_type="house", bedrooms=3, bathrooms=1, area=200)
+        response = self.client.get(reverse("properties"))
+        self.assertContains(response, "House")
+        self.assertContains(response, "3 beds")
+        self.assertContains(response, "1 bath<")
+        self.assertContains(response, "200 m²")
+        response = self.client.get(Listing.objects.get(title="Family House").get_absolute_url())
+        self.assertContains(response, "3 beds")
+
+    def test_land_without_rooms_shows_only_area(self):
+        land = make_listing(title="Plot", property_type="land", area=900)
+        response = self.client.get(land.get_absolute_url())
+        self.assertContains(response, "Land")
+        self.assertContains(response, "900 m²")
+        self.assertNotContains(response, "bed")
+        self.assertNotContains(response, "bath")
+
+    def test_defaults_are_empty(self):
+        listing = make_listing()
+        self.assertEqual(listing.property_type, "")
+        self.assertIsNone(listing.bedrooms)
+        self.assertNotContains(self.client.get(listing.get_absolute_url()), "bed")
 
 
 class GalleryTests(TestCase):
