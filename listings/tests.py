@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+from io import BytesIO
 
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -13,6 +14,15 @@ TINY_GIF = (
     b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,"
     b"\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;"
 )
+
+
+def make_jpeg(name="photo.jpg", size=(1200, 900), color=(200, 30, 60)):
+    """A real JPEG upload, since derivatives are produced with Pillow."""
+    from PIL import Image as PILImage
+
+    buffer = BytesIO()
+    PILImage.new("RGB", size, color).save(buffer, "JPEG")
+    return SimpleUploadedFile(name, buffer.getvalue(), content_type="image/jpeg")
 
 
 def make_listing(title="Sea View Villa", status=Listing.Status.PUBLISHED, **kwargs):
@@ -230,6 +240,95 @@ class ListingAttributeTests(TestCase):
         self.assertEqual(listing.property_type, "")
         self.assertIsNone(listing.bedrooms)
         self.assertNotContains(self.client.get(listing.get_absolute_url()), "bed")
+
+
+class ThumbnailTests(TestCase):
+    def setUp(self):
+        self.media_root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.media_root, ignore_errors=True)
+        override = override_settings(MEDIA_ROOT=self.media_root)
+        override.enable()
+        self.addCleanup(override.disable)
+        self.listing = make_listing()
+
+    def dimensions(self, field):
+        from PIL import Image as PILImage
+
+        with field.open("rb") as handle, PILImage.open(handle) as im:
+            return im.size, im.format
+
+    def test_derivatives_generated_on_create(self):
+        image = Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        self.assertEqual(self.dimensions(image.card), ((800, 600), "WEBP"))
+        self.assertEqual(self.dimensions(image.thumb), ((320, 240), "WEBP"))
+        self.assertEqual(self.dimensions(image.large), ((1200, 900), "WEBP"))  # never upscaled
+        self.assertTrue(image.card.name.startswith("images/card/photo-card"))
+        self.assertEqual(Image.objects.get(pk=image.pk).card.name, image.card.name)
+
+    def test_large_shrinks_big_uploads(self):
+        image = Image.objects.create(
+            listing=self.listing, name="Huge", image=make_jpeg(size=(4000, 2000))
+        )
+        self.assertEqual(self.dimensions(image.large)[0], (1600, 800))
+
+    def test_replacing_upload_regenerates_and_removes_old_files(self):
+        image = Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        old_card = image.card.name
+        image.image = make_jpeg(name="other.jpg", size=(1000, 1000))
+        image.save()
+        self.assertNotEqual(image.card.name, old_card)
+        self.assertTrue(image.card.name.startswith("images/card/other-card"))
+        self.assertFalse(image.card.storage.exists(old_card))
+        self.assertEqual(self.dimensions(image.large)[0], (1000, 1000))
+
+    def test_unrelated_save_does_not_regenerate(self):
+        image = Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        from unittest import mock
+
+        with mock.patch.object(Image, "generate_derivatives") as generate:
+            image.default = True
+            image.save()
+        generate.assert_not_called()
+
+    def test_delete_removes_all_files(self):
+        image = Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        names = [image.image.name, image.large.name, image.card.name, image.thumb.name]
+        storage = image.image.storage
+        self.assertTrue(all(storage.exists(name) for name in names))
+        image.delete()
+        self.assertFalse(any(storage.exists(name) for name in names))
+
+    def test_urls_fall_back_to_original(self):
+        image = Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        Image.objects.filter(pk=image.pk).update(large="", card="", thumb="")
+        image = Image.objects.get(pk=image.pk)
+        self.assertEqual(image.card_url, image.image.url)
+        response = self.client.get(self.listing.get_absolute_url())
+        self.assertContains(response, image.image.url)
+
+    def test_make_thumbnails_backfills_missing(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        image = Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        Image.objects.filter(pk=image.pk).update(large="", card="", thumb="")
+        out = StringIO()
+        call_command("make_thumbnails", stdout=out)
+        self.assertIn("1 image(s), 0 failed", out.getvalue())
+        self.assertTrue(Image.objects.get(pk=image.pk).has_derivatives)
+        out = StringIO()
+        call_command("make_thumbnails", stdout=out)
+        self.assertIn("0 image(s)", out.getvalue())
+
+    def test_card_and_gallery_use_derivatives(self):
+        Image.objects.create(listing=self.listing, name="Front", image=make_jpeg())
+        Image.objects.create(listing=self.listing, name="Back", image=make_jpeg(name="back.jpg"))
+        response = self.client.get(reverse("properties"))
+        self.assertContains(response, "/media/images/card/photo-card")
+        response = self.client.get(self.listing.get_absolute_url())
+        self.assertContains(response, "/media/images/large/photo-large")
+        self.assertContains(response, "/media/images/thumb/back-thumb")
 
 
 class GalleryTests(TestCase):

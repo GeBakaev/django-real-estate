@@ -1,7 +1,11 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.text import slugify
+
+from .images import SIZES, derivative_name, make_derivative
 
 
 class ListingQuerySet(models.QuerySet):
@@ -116,10 +120,67 @@ class Image(models.Model):
     name = models.CharField(max_length=255, help_text="Used as the image's alt text.")
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="images/")
+    # Resized WebP versions, generated from `image` on save (see listings/images.py).
+    large = models.ImageField(upload_to="images/large/", blank=True, editable=False)
+    card = models.ImageField(upload_to="images/card/", blank=True, editable=False)
+    thumb = models.ImageField(upload_to="images/thumb/", blank=True, editable=False)
     default = models.BooleanField(default=False, help_text="Use as the listing's cover image.")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._source_name = self.image.name
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        regenerate = bool(self.image) and (
+            self.image.name != self._source_name or not self.has_derivatives
+        )
+        super().save(*args, **kwargs)
+        if regenerate:
+            # The original is in storage now, under its final name.
+            self.generate_derivatives()
+            super().save(update_fields=list(SIZES))
+        self._source_name = self.image.name
+
+    @property
+    def has_derivatives(self):
+        return all(getattr(self, size) for size in SIZES)
+
+    @property
+    def large_url(self):
+        return (self.large or self.image).url
+
+    @property
+    def card_url(self):
+        return (self.card or self.image).url
+
+    @property
+    def thumb_url(self):
+        return (self.thumb or self.image).url
+
+    def generate_derivatives(self):
+        """(Re)build the resized versions from the original; old files are removed."""
+        with self.image.open("rb") as source:
+            for size in SIZES:
+                field = getattr(self, size)
+                old_name = field.name
+                field.save(
+                    derivative_name(self.image.name, size),
+                    make_derivative(source, size),
+                    save=False,
+                )
+                if old_name and old_name != field.name:
+                    field.storage.delete(old_name)
+
+
+@receiver(post_delete, sender=Image)
+def delete_image_files(sender, instance, **kwargs):
+    """Remove the upload and its derivatives from storage when an Image row is deleted."""
+    for field in (instance.image, instance.large, instance.card, instance.thumb):
+        if field.name:
+            field.storage.delete(field.name)
 
 
 class Contact(models.Model):

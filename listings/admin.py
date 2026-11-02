@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import Contact, Image, Listing, WebsiteInfo
 
@@ -8,8 +9,17 @@ LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 
 class ImageInline(admin.TabularInline):
     model = Image
-    fields = ("name", "image", "default")
+    fields = ("preview", "name", "image", "default")
+    readonly_fields = ("preview",)
     extra = 1
+
+    @admin.display(description="Preview")
+    def preview(self, obj):
+        if not obj.pk or not obj.image:
+            return ""
+        return format_html(
+            '<img src="{}" alt="" style="height: 60px; border-radius: 4px;">', obj.thumb_url
+        )
 
 
 @admin.register(Listing)

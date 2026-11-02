@@ -3,7 +3,7 @@
     <a href="{{ listing.get_absolute_url }}" class="block aspect-4/3 overflow-hidden bg-stone-100" tabindex="-1" aria-hidden="true">
         {% with cover=listing.cover_image %}
         {% if cover %}
-            <img src="{{ cover.image.url }}" alt="" class="size-full object-cover transition duration-500 group-hover:scale-105" loading="lazy">
+            <img src="{{ cover.card_url }}" alt="" width="800" height="600" class="size-full object-cover transition duration-500 group-hover:scale-105" loading="lazy">
         {% else %}
             <div class="flex size-full items-center justify-center text-stone-300">
                 {% include "icons/photo.svg" with icon_class="size-12" %}
