@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -294,6 +295,39 @@ class ContactFormTests(TestCase):
         response = self.client.post(reverse("home"), self.payload)
         self.assertRedirects(response, reverse("home"))
         self.assertEqual(Contact.objects.count(), 1)
+
+    def test_valid_post_notifies_site_email(self):
+        WebsiteInfo.objects.all().delete()
+        WebsiteInfo.objects.create(website_name="Acme Homes", email="owner@acme.test")
+        self.client.post(reverse("contact-us"), self.payload)
+        self.assertEqual(len(mail.outbox), 1)
+        sent = mail.outbox[0]
+        self.assertEqual(sent.to, ["owner@acme.test"])
+        self.assertEqual(sent.reply_to, ["jane@example.com"])
+        self.assertEqual(sent.subject, "[Acme Homes] New inquiry: Viewing")
+        self.assertIn("Can I see the villa?", sent.body)
+        self.assertIn("Jane <jane@example.com>", sent.body)
+
+    @override_settings(CONTACT_NOTIFY_EMAILS=["a@x.test", "b@x.test"])
+    def test_env_recipients_override_site_email(self):
+        self.client.post(reverse("contact-us"), self.payload)
+        self.assertEqual(mail.outbox[0].to, ["a@x.test", "b@x.test"])
+
+    def test_mail_failure_does_not_break_submission(self):
+        from unittest import mock
+
+        with (
+            mock.patch("listings.emails.EmailMessage.send", side_effect=OSError("smtp down")),
+            self.assertLogs("listings.emails", level="ERROR") as logs,
+        ):
+            response = self.client.post(reverse("contact-us"), self.payload)
+        self.assertRedirects(response, reverse("contact-us"))
+        self.assertEqual(Contact.objects.count(), 1)
+        self.assertIn("Could not send notification", logs.output[0])
+
+    def test_invalid_post_sends_nothing(self):
+        self.client.post(reverse("contact-us"), {**self.payload, "email": "nope"})
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_invalid_post_rerenders_with_errors(self):
         response = self.client.post(

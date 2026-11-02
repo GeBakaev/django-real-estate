@@ -21,6 +21,7 @@ Most of the information visible on the website can be updated from the admin pan
 - Map on every listing (OpenStreetMap via Leaflet, no API key needed).
 - Search, filter (location, price, area) and sort listings; results update in place via htmx and every filter state is a shareable URL.
 - Photo gallery on each listing with thumbnails, arrows, keyboard and swipe navigation.
+- Contact-form inquiries are stored in the admin and emailed to the site owner (SMTP settings in `.env`; printed to the console in development).
 
 ## Installation
 
