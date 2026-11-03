@@ -20,7 +20,7 @@ Most of the information visible on the website can be updated from the admin pan
 - Change Website Information from Admin Panel.
 - Map on every listing (OpenStreetMap via Leaflet, no API key needed).
 - Search, filter (location, price, area) and sort listings; results update in place via htmx and every filter state is a shareable URL.
-- Photo gallery on each listing with thumbnails, arrows, keyboard and swipe navigation.
+- Photo gallery on each listing with thumbnails, arrows, keyboard and swipe navigation. Uploads are resized to WebP (gallery, card and thumbnail sizes) on save; run `python manage.py make_thumbnails` once to backfill existing photos.
 - Contact-form inquiries are stored in the admin and, when `CONTACT_NOTIFY_EMAILS` is set, emailed to the owner (SMTP settings in `.env`; printed to the console in development).
 
 ## Installation
