@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load humanize static %}
 {% block title %}{{ object.title }}{% endblock %}
-{% block meta_description %}{{ object.description|striptags|truncatechars:155 }}{% endblock %}
+{% block meta_description %}{{ object.summary }}{% endblock %}
+{% block og_title %}{{ object.title }} · ${{ object.price|intcomma }}{% endblock %}
+{% block og_description %}{{ object.location }}. {{ object.summary }}{% endblock %}
+{% block og_image %}{% with cover=object.cover_image %}{% if cover %}{{ request.scheme }}://{{ request.get_host }}{{ cover.large_url }}{% else %}{{ default_og_image }}{% endif %}{% endwith %}{% endblock %}
 
 {% block head %}
     {% if object.has_coordinates %}

@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.cache import patch_vary_headers
 from django.views import generic
 
@@ -72,6 +74,15 @@ class PostDetail(generic.DetailView):
     def get_queryset(self):
         # Drafts must never be reachable by guessing the slug.
         return Listing.objects.published().prefetch_related("images")
+
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
 
 
 def about_us(request):
