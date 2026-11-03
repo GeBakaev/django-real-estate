@@ -3,7 +3,8 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils.text import slugify
+from django.utils.html import strip_tags
+from django.utils.text import Truncator, slugify
 
 from .images import SIZES, derivative_name, make_derivative
 
@@ -48,6 +49,7 @@ class Listing(models.Model):
     bathrooms = models.PositiveSmallIntegerField(null=True, blank=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
     status = models.IntegerField(choices=Status.choices, default=Status.DRAFT)
     location = models.CharField(max_length=200)
     latitude = models.DecimalField(
@@ -84,6 +86,11 @@ class Listing(models.Model):
     @property
     def is_published(self):
         return self.status == self.Status.PUBLISHED
+
+    @property
+    def summary(self):
+        """Single-line description excerpt for meta tags and previews."""
+        return Truncator(" ".join(strip_tags(self.description).split())).chars(155)
 
     @property
     def has_coordinates(self):

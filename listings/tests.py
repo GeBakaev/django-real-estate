@@ -216,6 +216,63 @@ class ListingFilterTests(TestCase):
         )
 
 
+class SeoTests(TestCase):
+    def test_sitemap_lists_published_listings_and_pages(self):
+        listing = make_listing(title="Listed")
+        make_listing(title="Hidden", status=Listing.Status.DRAFT)
+        response = self.client.get("/sitemap.xml")
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn(f"http://testserver{listing.get_absolute_url()}", body)
+        self.assertNotIn("hidden", body)
+        self.assertIn("<lastmod>", body)
+        for name in ("properties", "about-us", "contact-us"):
+            self.assertIn(f"http://testserver{reverse(name)}", body)
+
+    def test_robots_txt(self):
+        response = self.client.get("/robots.txt")
+        self.assertEqual(response["Content-Type"], "text/plain")
+        self.assertContains(response, "Disallow: /admin/")
+        self.assertContains(response, "Sitemap: http://testserver/sitemap.xml")
+
+    def test_canonical_drops_query_string(self):
+        response = self.client.get(reverse("properties"), {"location": "Beirut", "page": 1})
+        self.assertContains(response, '<link rel="canonical" href="http://testserver/properties/">')
+
+    def test_home_uses_default_open_graph_image(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, '<meta property="og:type" content="website">')
+        self.assertContains(
+            response,
+            '<meta property="og:image" content="http://testserver/static/images/hero.webp">',
+        )
+
+    def test_listing_open_graph_uses_cover_photo(self):
+        media_root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, media_root, ignore_errors=True)
+        with override_settings(MEDIA_ROOT=media_root):
+            listing = make_listing(
+                title="Sea View Villa",
+                price=250000,
+                description="A lovely place.\n\nWith <b>two</b> paragraphs.",
+            )
+            cover = Image.objects.create(listing=listing, name="Front", image=make_jpeg())
+            response = self.client.get(listing.get_absolute_url())
+            self.assertContains(
+                response, '<meta property="og:title" content="Sea View Villa · $250,000">'
+            )
+            self.assertContains(
+                response, f'<meta property="og:image" content="http://testserver{cover.large.url}">'
+            )
+            self.assertContains(
+                response,
+                'property="og:description" content="Beirut. A lovely place. With two paragraphs."',
+            )
+            self.assertContains(
+                response, '<meta name="description" content="A lovely place. With two paragraphs.">'
+            )
+
+
 class ListingAttributeTests(TestCase):
     def test_specs_rendered_on_card_and_detail(self):
         make_listing(title="Family House", property_type="house", bedrooms=3, bathrooms=1, area=200)

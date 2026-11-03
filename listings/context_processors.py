@@ -1,4 +1,14 @@
+from django.templatetags.static import static
+
 from .models import WebsiteInfo
+
+
+def seo(request):
+    """Absolute URLs for canonical/Open Graph tags; the current path without its query."""
+    return {
+        "canonical_url": request.build_absolute_uri(request.path),
+        "default_og_image": request.build_absolute_uri(static("images/hero.webp")),
+    }
 
 
 def website_info(request):
