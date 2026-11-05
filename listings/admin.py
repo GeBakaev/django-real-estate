@@ -79,6 +79,31 @@ class ContactAdmin(admin.ModelAdmin):
 @admin.register(WebsiteInfo)
 class WebsiteInfoAdmin(admin.ModelAdmin):
     list_display = ("website_name", "business_location", "email", "phone_number")
+    fieldsets = (
+        (None, {"fields": ("website_name", "business_location")}),
+        (
+            "Contact and social",
+            {
+                "fields": (
+                    ("email", "phone_number"),
+                    "facebook_link",
+                    "instagram_link",
+                    "linkedin_link",
+                )
+            },
+        ),
+        ("Home page", {"fields": ("hero_tagline", "hero_title", "hero_subtitle")}),
+        (
+            "About page",
+            {
+                "fields": (
+                    "about_headline",
+                    "about_us",
+                    ("properties_count", "cities_count", "offices_count"),
+                )
+            },
+        ),
+    )
 
     def has_add_permission(self, request):
         return WebsiteInfo.objects.count() == 0

@@ -50,8 +50,8 @@ Photos in the screenshots and under `static/images/` are from Unsplash; see
 - Static files get hashed names so long browser caches never serve a stale stylesheet.
 - All configuration comes from environment variables; `USE_HTTPS=1` turns on secure cookies,
   HSTS and the HTTPS redirect.
-- 63 tests, ruff lint and format, GitHub Actions CI that also checks the compiled stylesheet
-  is current.
+- A test suite, ruff lint and format, GitHub Actions CI that also checks the compiled
+  stylesheet is current, and Dependabot for Python and Actions updates.
 
 ## Quick start with Docker
 
@@ -127,7 +127,8 @@ every variable with comments.
 Everything visible on the site is edited at `/admin`:
 
 - **Website info** holds the site name, contact email and phone, social links, location, the
-  About text and the property, city and office counts. There is exactly one record.
+  home page headline and tagline, the About heading and text, and the property, city and office
+  counts. There is exactly one record.
 - **Listings** are drafts until their status is set to Published; drafts are never shown
   publicly. Photos are added inline; tick **Default** on the one to use as the cover. Click the
   map in the Location section to set coordinates, or type them.

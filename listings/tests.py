@@ -216,6 +216,70 @@ class ListingFilterTests(TestCase):
         )
 
 
+class SiteCopyAndPolishTests(TestCase):
+    def test_hero_copy_comes_from_website_info(self):
+        WebsiteInfo.objects.all().delete()
+        WebsiteInfo.objects.create(
+            hero_tagline="Coast and mountains",
+            hero_title="Homes worth coming back to",
+            hero_subtitle="Sold by people who know every street.",
+            about_headline="Thirty years on the coast",
+        )
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "Coast and mountains")
+        self.assertContains(response, "Homes worth coming back to")
+        self.assertContains(response, "Sold by people who know every street.")
+        self.assertContains(self.client.get(reverse("about-us")), "Thirty years on the coast")
+
+    def test_empty_tagline_hides_the_pill(self):
+        WebsiteInfo.objects.all().delete()
+        WebsiteInfo.objects.create(hero_tagline="", hero_subtitle="")
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, "eyebrow-pill")
+        self.assertContains(response, "Premier real estate")
+
+    def test_favicon_linked(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'rel="icon" href="/static/images/favicon.svg"')
+
+    def test_404_uses_site_layout(self):
+        response = self.client.get("/no-such-listing/")
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, "Page not found", status_code=404)
+        self.assertContains(response, "Browse properties", status_code=404)
+        self.assertContains(response, "css/site.css", status_code=404)
+
+    def test_500_template_renders_without_context(self):
+        from django.template.loader import render_to_string
+
+        html = render_to_string("500.html")
+        self.assertIn("Something went wrong", html)
+        self.assertIn("css/site.css", html)
+
+    def test_admin_is_branded_with_site_name(self):
+        WebsiteInfo.objects.all().delete()
+        WebsiteInfo.objects.create(website_name="Acme Homes")
+        response = self.client.get("/admin/login/")
+        self.assertContains(response, "Acme Homes admin")
+        self.assertNotContains(response, "Django administration")
+
+    def test_oversized_photo_is_rejected(self):
+        from unittest import mock
+
+        from django.core.exceptions import ValidationError
+
+        media_root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, media_root, ignore_errors=True)
+        with override_settings(MEDIA_ROOT=media_root):
+            listing = make_listing()
+            photo = Image(listing=listing, name="Front", image=make_jpeg())
+            photo.full_clean()  # within the limit
+            with mock.patch("listings.images.MAX_UPLOAD_BYTES", 100):
+                with self.assertRaises(ValidationError) as caught:
+                    photo.full_clean()
+            self.assertIn("too large", str(caught.exception))
+
+
 class SeoTests(TestCase):
     def test_sitemap_lists_published_listings_and_pages(self):
         listing = make_listing(title="Listed")

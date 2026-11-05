@@ -1,0 +1,17 @@
+{% load static %}<!DOCTYPE html>
+{# Standalone on purpose: Django renders this without context processors, so it cannot extend base.html. #}
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Something went wrong</title>
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body class="flex min-h-full flex-col items-center justify-center bg-white px-4 py-24 text-center font-sans text-stone-700 antialiased">
+    <p class="font-display text-7xl font-bold text-brand-500">500</p>
+    <h1 class="section-title mt-4">Something went wrong</h1>
+    <p class="mt-4 max-w-md text-stone-600">An unexpected error occurred. Please try again in a few minutes.</p>
+    <a href="/" class="btn btn-primary mt-8">Back to home</a>
+</body>
+</html>
