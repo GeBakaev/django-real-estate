@@ -200,6 +200,14 @@ class Contact(models.Model):
     email = models.EmailField(max_length=254)
     subject = models.CharField(max_length=255)
     message = models.TextField()
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inquiries",
+        help_text="The property this inquiry was sent from, if any.",
+    )
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -216,6 +224,15 @@ class WebsiteInfo(models.Model):
     # Contact & socials
     email = models.EmailField(max_length=254, default="test@example.com")
     phone_number = models.CharField(max_length=255, default="+1 555 634 777")
+    whatsapp_number = models.CharField(
+        max_length=32,
+        blank=True,
+        default="",
+        help_text=(
+            "Number with country code, e.g. +961 70 123 456. "
+            "Leave empty to hide the WhatsApp buttons."
+        ),
+    )
     facebook_link = models.URLField(max_length=255, default="https://facebook.com/example")
     instagram_link = models.URLField(max_length=255, default="https://instagram.com/example")
     linkedin_link = models.URLField(max_length=255, default="https://linked.in/example")
@@ -249,3 +266,8 @@ class WebsiteInfo(models.Model):
 
     def __str__(self):
         return self.website_name
+
+    @property
+    def whatsapp_digits(self):
+        """The WhatsApp number as wa.me expects it: digits only, no plus or spaces."""
+        return "".join(char for char in self.whatsapp_number if char.isdigit())

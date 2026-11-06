@@ -7,6 +7,22 @@ INPUT_CLASS = "field-input"
 
 
 class ContactForm(forms.ModelForm):
+    """Contact form; pass ``listing`` to turn it into an inquiry about that property."""
+
+    def __init__(self, *args, listing=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.listing = listing
+        if listing is not None:
+            max_length = self.fields["subject"].max_length
+            self.fields["subject"].initial = f"Inquiry about {listing.title}"[:max_length]
+            self.fields["message"].widget.attrs["placeholder"] = (
+                "I would like to know more about this property"
+            )
+
+    def save(self, commit=True):
+        self.instance.listing = self.listing
+        return super().save(commit)
+
     class Meta:
         model = Contact
         fields = ["name", "email", "subject", "message"]

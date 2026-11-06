@@ -1,13 +1,19 @@
+{# compact=True stacks the fields for a narrow column and keeps the prefilled subject hidden. #}
 <form method="post" action="{{ form_action|default:'' }}" class="space-y-5">
     {% csrf_token %}
     {% if form.non_field_errors %}
         <div class="rounded-lg bg-red-50 p-4 text-sm text-red-700">{{ form.non_field_errors }}</div>
     {% endif %}
-    <div class="grid gap-5 sm:grid-cols-2">
+    <div class="grid gap-5{% if not compact %} sm:grid-cols-2{% endif %}">
         {% include "partials/field.html" with field=form.name %}
         {% include "partials/field.html" with field=form.email %}
     </div>
-    {% include "partials/field.html" with field=form.subject %}
+    {% if compact %}
+        {{ form.subject.as_hidden }}
+        {% for error in form.subject.errors %}<p class="text-sm text-red-600">Subject: {{ error }}</p>{% endfor %}
+    {% else %}
+        {% include "partials/field.html" with field=form.subject %}
+    {% endif %}
     {% include "partials/field.html" with field=form.message %}
-    <button type="submit" class="btn btn-primary w-full sm:w-auto">Send message</button>
+    <button type="submit" class="btn btn-primary w-full{% if not compact %} sm:w-auto{% endif %}">{{ submit_label|default:"Send message" }}</button>
 </form>

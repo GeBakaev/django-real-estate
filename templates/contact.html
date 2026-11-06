@@ -27,6 +27,17 @@
                     <a href="tel:{{ site_info.phone_number|cut:' ' }}" class="mt-1 block font-medium text-stone-900 transition hover:text-brand-500">{{ site_info.phone_number }}</a>
                 </div>
             </li>
+            {% if site_info.whatsapp_digits %}
+            <li class="flex gap-4">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
+                    {% include "icons/whatsapp.svg" with icon_class="size-5" %}
+                </span>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-stone-500">WhatsApp</p>
+                    <a href="https://wa.me/{{ site_info.whatsapp_digits }}" target="_blank" rel="noopener" class="mt-1 block font-medium text-stone-900 transition hover:text-brand-500">{{ site_info.whatsapp_number }}</a>
+                </div>
+            </li>
+            {% endif %}
             <li class="flex gap-4">
                 <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-500">
                     {% include "icons/map-pin.svg" with icon_class="size-5" %}

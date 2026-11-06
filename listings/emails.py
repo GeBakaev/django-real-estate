@@ -9,11 +9,12 @@ from .models import WebsiteInfo
 logger = logging.getLogger(__name__)
 
 
-def notify_new_contact(contact):
+def notify_new_contact(contact, listing_url=""):
     """Email the site owner about a saved Contact.
 
     Recipients come from CONTACT_NOTIFY_EMAILS; when that is empty, notifications are
-    simply off. Never raises: the submission is already stored, so a mail outage only
+    simply off. ``listing_url`` is the absolute link to the property the inquiry came
+    from, if any. Never raises: the submission is already stored, so a mail outage only
     logs an error.
     """
     recipients = settings.CONTACT_NOTIFY_EMAILS
@@ -21,7 +22,7 @@ def notify_new_contact(contact):
         return False
 
     site_info = WebsiteInfo.objects.first() or WebsiteInfo()
-    context = {"contact": contact, "site_info": site_info}
+    context = {"contact": contact, "site_info": site_info, "listing_url": listing_url}
     message = EmailMessage(
         subject=f"[{site_info.website_name}] New inquiry: {contact.subject}",
         body=render_to_string("emails/contact_notification.txt", context),
