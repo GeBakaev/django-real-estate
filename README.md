@@ -28,9 +28,12 @@ Photos in the screenshots and under `static/images/` are from Unsplash; see
   sorting and pagination. Results update in place with htmx; every filter state is a plain
   URL that also works without JavaScript.
 - Listing page with a photo gallery (thumbnails, arrows, keyboard and swipe), key facts, a map
-  (OpenStreetMap via Leaflet, no API key) and a contact call-to-action.
+  (OpenStreetMap via Leaflet, no API key) and an inquiry form tied to that property.
 - Contact form on the home and contact pages. Inquiries are stored in the admin and, when
-  configured, emailed to the owner with the sender as Reply-To.
+  configured, emailed to the owner with the sender as Reply-To and a link to the property
+  they came from.
+- Optional WhatsApp button on listing pages, opening a chat with the property's name and link
+  already typed. It appears once a WhatsApp number is set in the admin.
 - Responsive layout, dark header and footer, toast messages, no CSS or JS framework at runtime
   beyond the compiled Tailwind stylesheet and htmx on the listings page.
 - Search-engine basics: `sitemap.xml`, `robots.txt`, canonical links, Open Graph and Twitter
@@ -41,7 +44,7 @@ Photos in the screenshots and under `static/images/` are from Unsplash; see
 - Listings with inline photos; pick the cover photo, set coordinates by clicking a map.
 - Site information in one place: name, contact details, social links, about text and
   the three statistics shown on the About page.
-- Inquiries are read-only records with the sender's details.
+- Inquiries are read-only records with the sender's details and the property they asked about.
 
 **Behind the scenes**
 
@@ -126,13 +129,14 @@ every variable with comments.
 
 Everything visible on the site is edited at `/admin`:
 
-- **Website info** holds the site name, contact email and phone, social links, location, the
-  home page headline and tagline, the About heading and text, and the property, city and office
-  counts. There is exactly one record.
+- **Website info** holds the site name, contact email and phone, the optional WhatsApp number,
+  social links, location, the home page headline and tagline, the About heading and text, and
+  the property, city and office counts. There is exactly one record.
 - **Listings** are drafts until their status is set to Published; drafts are never shown
   publicly. Photos are added inline; tick **Default** on the one to use as the cover. Click the
   map in the Location section to set coordinates, or type them.
-- **Contacts** lists inquiries from the contact form.
+- **Contacts** lists inquiries from the contact form and from listing pages, with the property
+  each one is about.
 
 ## Project layout
 

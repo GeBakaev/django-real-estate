@@ -68,9 +68,10 @@ class ListingAdmin(admin.ModelAdmin):
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "subject", "created_time")
-    search_fields = ("name", "email", "subject")
-    readonly_fields = ("name", "email", "subject", "message", "created_time")
+    list_display = ("name", "email", "subject", "listing", "created_time")
+    list_select_related = ("listing",)
+    search_fields = ("name", "email", "subject", "listing__title")
+    readonly_fields = ("name", "email", "subject", "message", "listing", "created_time")
 
     def has_add_permission(self, request):
         return False
@@ -86,6 +87,7 @@ class WebsiteInfoAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("email", "phone_number"),
+                    "whatsapp_number",
                     "facebook_link",
                     "instagram_link",
                     "linkedin_link",

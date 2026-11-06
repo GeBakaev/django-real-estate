@@ -564,6 +564,102 @@ class ContactFormTests(TestCase):
         self.assertContains(response, "Enter a valid email address.")
 
 
+class ListingInquiryTests(TestCase):
+    payload = {
+        "name": "Jane",
+        "email": "jane@example.com",
+        "subject": "Inquiry about Sea View Villa",
+        "message": "Can I see it on Saturday?",
+    }
+
+    def setUp(self):
+        self.listing = make_listing(title="Sea View Villa")
+        self.url = self.listing.get_absolute_url()
+
+    def test_listing_page_has_form_with_prefilled_subject(self):
+        response = self.client.get(self.url)
+        self.assertContains(response, 'id="inquiry"')
+        self.assertContains(
+            response,
+            '<input type="hidden" name="subject" value="Inquiry about Sea View Villa"',
+        )
+        self.assertContains(response, "Send inquiry")
+
+    def test_valid_post_links_inquiry_to_listing(self):
+        response = self.client.post(self.url, self.payload, follow=True)
+        self.assertRedirects(response, self.url)
+        self.assertContains(response, "Thank you for contacting us")
+        contact = Contact.objects.get()
+        self.assertEqual(contact.listing, self.listing)
+        self.assertEqual(contact.subject, "Inquiry about Sea View Villa")
+        self.assertEqual(list(self.listing.inquiries.all()), [contact])
+
+    def test_invalid_post_rerenders_listing_with_errors(self):
+        response = self.client.post(self.url, {**self.payload, "email": "nope"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contact.objects.count(), 0)
+        self.assertContains(response, "Enter a valid email address.")
+        # What the visitor typed is kept.
+        self.assertContains(response, "Can I see it on Saturday?")
+
+    def test_draft_listing_cannot_receive_inquiries(self):
+        draft = make_listing(title="Hidden", status=Listing.Status.DRAFT)
+        response = self.client.post(draft.get_absolute_url(), self.payload)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Contact.objects.count(), 0)
+
+    def test_contact_page_inquiry_has_no_listing(self):
+        self.client.post(reverse("contact-us"), self.payload)
+        self.assertIsNone(Contact.objects.get().listing)
+
+    def test_inquiry_survives_listing_deletion(self):
+        self.client.post(self.url, self.payload)
+        self.listing.delete()
+        self.assertIsNone(Contact.objects.get().listing)
+
+    @override_settings(CONTACT_NOTIFY_EMAILS=["owner@acme.test"])
+    def test_notification_names_the_listing(self):
+        self.client.post(self.url, self.payload)
+        body = mail.outbox[0].body
+        self.assertIn("Listing: Sea View Villa", body)
+        self.assertIn(f"http://testserver{self.url}", body)
+
+    @override_settings(CONTACT_NOTIFY_EMAILS=["owner@acme.test"])
+    def test_general_notification_has_no_listing_line(self):
+        self.client.post(reverse("contact-us"), self.payload)
+        self.assertNotIn("Listing:", mail.outbox[0].body)
+
+    @override_settings(CONTACT_NOTIFY_EMAILS=["owner@acme.test"])
+    def test_notification_is_plain_text_not_html_escaped(self):
+        payload = {**self.payload, "name": "O'Brien & Sons", "message": "Is it < 500k?"}
+        self.client.post(self.url, payload)
+        body = mail.outbox[0].body
+        self.assertIn("O'Brien & Sons <jane@example.com>", body)
+        self.assertIn("Is it < 500k?", body)
+
+    def test_whatsapp_hidden_without_a_number(self):
+        self.assertNotContains(self.client.get(self.url), "wa.me")
+        self.assertNotContains(self.client.get(reverse("contact-us")), "wa.me")
+
+    def test_whatsapp_button_links_to_number_with_listing_message(self):
+        WebsiteInfo.objects.all().delete()
+        WebsiteInfo.objects.create(whatsapp_number="+961 70 123 456")
+        response = self.client.get(self.url)
+        self.assertContains(response, "https://wa.me/96170123456?text=Hello%2C%20I%20am")
+        self.assertContains(response, "Sea%20View%20Villa")
+        self.assertContains(response, "http%3A%2F%2Ftestserver%2F")
+        self.assertContains(self.client.get(reverse("contact-us")), "https://wa.me/96170123456")
+
+    def test_admin_lists_the_listing_of_an_inquiry(self):
+        from django.contrib.auth import get_user_model
+
+        self.client.post(self.url, self.payload)
+        admin_user = get_user_model().objects.create_superuser("boss", "boss@acme.test", "pw")
+        self.client.force_login(admin_user)
+        response = self.client.get(reverse("admin:listings_contact_changelist"))
+        self.assertContains(response, "Sea View Villa")
+
+
 class WebsiteInfoTests(TestCase):
     def test_site_info_in_context_from_db(self):
         WebsiteInfo.objects.all().delete()

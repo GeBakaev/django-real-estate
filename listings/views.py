@@ -13,12 +13,16 @@ from .models import Listing
 CONTACT_SUCCESS_MESSAGE = "Thank you for contacting us. We will get back to you shortly."
 
 
-def _handle_contact_form(request):
-    """Bind the contact form; save and return True when a valid POST arrived."""
-    form = ContactForm(request.POST or None)
+def _handle_contact_form(request, listing=None):
+    """Bind the contact form; save and return True when a valid POST arrived.
+
+    With ``listing`` the submission is stored as an inquiry about that property.
+    """
+    form = ContactForm(request.POST or None, listing=listing)
     if request.method == "POST" and form.is_valid():
         contact = form.save()
-        notify_new_contact(contact)
+        listing_url = request.build_absolute_uri(listing.get_absolute_url()) if listing else ""
+        notify_new_contact(contact, listing_url=listing_url)
         messages.success(request, CONTACT_SUCCESS_MESSAGE)
         return form, True
     return form, False
@@ -74,6 +78,20 @@ class PostDetail(generic.DetailView):
     def get_queryset(self):
         # Drafts must never be reachable by guessing the slug.
         return Listing.objects.published().prefetch_related("images")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.setdefault("form", ContactForm(listing=self.object))
+        listing_url = self.request.build_absolute_uri(self.object.get_absolute_url())
+        context["whatsapp_text"] = f"Hello, I am interested in {self.object.title}: {listing_url}"
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form, submitted = _handle_contact_form(request, listing=self.object)
+        if submitted:
+            return redirect(self.object)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 def robots_txt(request):
