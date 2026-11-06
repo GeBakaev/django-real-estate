@@ -10,7 +10,7 @@ jobs:
     name: Lint (ruff)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -22,7 +22,7 @@ jobs:
     name: Stylesheet is up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: scripts/tailwind
       - run: git diff --exit-code -- static/css/site.css
 
@@ -33,7 +33,7 @@ jobs:
       SECRET_KEY: ci-only-not-secret
       DEBUG: "0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
