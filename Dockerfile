@@ -17,8 +17,3 @@ COPY entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint && chmod +x /entrypoint
 WORKDIR /app
 ENTRYPOINT ["/entrypoint"]
-
-
-FROM base AS linting
-RUN pip install --no-cache-dir ruff djlint
-WORKDIR /app

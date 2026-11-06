@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.text import Truncator, slugify
 
-from .images import SIZES, derivative_name, make_derivative
+from .images import SIZES, derivative_name, make_derivative, validate_upload_size
 
 
 class ListingQuerySet(models.QuerySet):
@@ -126,7 +126,11 @@ class Image(models.Model):
     image_id = models.AutoField(db_column="id", primary_key=True)
     name = models.CharField(max_length=255, help_text="Used as the image's alt text.")
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="images/")
+    image = models.ImageField(
+        upload_to="images/",
+        validators=[validate_upload_size],
+        help_text="JPEG, PNG or WebP, up to 15 MB. Resized versions are generated on save.",
+    )
     # Resized WebP versions, generated from `image` on save (see listings/images.py).
     large = models.ImageField(upload_to="images/large/", blank=True, editable=False)
     card = models.ImageField(upload_to="images/card/", blank=True, editable=False)
@@ -215,7 +219,25 @@ class WebsiteInfo(models.Model):
     facebook_link = models.URLField(max_length=255, default="https://facebook.com/example")
     instagram_link = models.URLField(max_length=255, default="https://instagram.com/example")
     linkedin_link = models.URLField(max_length=255, default="https://linked.in/example")
+    # Home page hero
+    hero_tagline = models.CharField(
+        max_length=80,
+        blank=True,
+        default="Invest without limits",
+        help_text="Small label above the headline. Leave empty to hide it.",
+    )
+    hero_title = models.CharField(
+        max_length=160, default="Premier real estate, from vacant land to your future home"
+    )
+    hero_subtitle = models.CharField(
+        max_length=255, blank=True, default="Hand-picked properties for sale across Lebanon."
+    )
     # About us
+    about_headline = models.CharField(
+        max_length=160,
+        default="The best investment on earth is earth",
+        help_text="Large heading at the top of the About page.",
+    )
     about_us = models.TextField(default="About us info")
     properties_count = models.IntegerField(default=0)
     cities_count = models.IntegerField(default=0)

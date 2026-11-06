@@ -3,8 +3,11 @@
 from io import BytesIO
 from pathlib import Path
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
+
+MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
 # name -> (width, height, crop). Cropped sizes are exact; "large" only shrinks to fit.
 SIZES = {
@@ -13,6 +16,13 @@ SIZES = {
     "thumb": (320, 240, True),
 }
 QUALITY = {"large": 82, "card": 80, "thumb": 75}
+
+
+def validate_upload_size(upload):
+    """Reject uploads that would be slow to resize inside the admin request."""
+    if upload.size > MAX_UPLOAD_BYTES:
+        limit = MAX_UPLOAD_BYTES // (1024 * 1024)
+        raise ValidationError(f"The photo is too large. Upload a file of {limit} MB or less.")
 
 
 def derivative_name(original_name, size):

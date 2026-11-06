@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+<section class="container-x flex flex-col items-center py-28 text-center sm:py-36">
+    <p class="font-display text-7xl font-bold text-brand-500">404</p>
+    <h1 class="section-title mt-4">Page not found</h1>
+    <p class="mt-4 max-w-md text-stone-600">
+        The page you are looking for does not exist, or the property is no longer listed.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <a href="{% url 'properties' %}" class="btn btn-primary">Browse properties</a>
+        <a href="{% url 'home' %}" class="btn border border-stone-300 bg-white text-stone-700 hover:border-stone-400">Back to home</a>
+    </div>
+</section>
+{% endblock %}
