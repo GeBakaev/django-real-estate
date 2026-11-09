@@ -74,6 +74,25 @@
         <div id="map" class="mt-4 h-96 w-full rounded-2xl" data-lat="{{ object.latitude }}" data-lng="{{ object.longitude }}"></div>
     </section>
     {% endif %}
+
+    {% if similar_listings %}
+    <section class="mt-16 border-t border-stone-200 pt-12" aria-labelledby="similar-heading">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <p class="eyebrow">You may also like</p>
+                <h2 id="similar-heading" class="mt-1 font-display text-2xl font-semibold text-stone-900">Similar properties</h2>
+            </div>
+            <a href="{% url 'properties' %}?listing_type={{ object.listing_type }}&amp;location={{ object.location|urlencode }}#properties" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-500 transition hover:text-brand-600">
+                All {{ object.get_listing_type_display|lower }} in {{ object.location }} {% include "icons/arrow-right.svg" with icon_class="size-4" %}
+            </a>
+        </div>
+        <div class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {% for listing in similar_listings %}
+                {% include "partials/listing_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </article>
 {% endblock %}
 

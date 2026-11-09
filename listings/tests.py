@@ -282,6 +282,77 @@ class SaleOrRentTests(TestCase):
         )
 
 
+class SimilarListingsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.subject = make_listing(
+            title="Subject", location="Batroun", property_type="villa", price=800000
+        )
+        cls.same_both = make_listing(
+            title="Same place and type", location="Batroun", property_type="villa", price=700000
+        )
+        cls.same_type_close = make_listing(
+            title="Same type, close price", location="Jounieh", property_type="villa", price=820000
+        )
+        cls.same_type_far = make_listing(
+            title="Same type, far price", location="Jounieh", property_type="villa", price=200000
+        )
+        cls.same_place = make_listing(
+            title="Same place only", location="Batroun", property_type="land", price=90000
+        )
+        make_listing(title="Draft twin", location="Batroun", property_type="villa", status=0)
+        make_listing(
+            title="Rental twin",
+            location="Batroun",
+            property_type="villa",
+            price=3000,
+            listing_type="rent",
+            rent_period="month",
+        )
+
+    def test_ranking_and_limit(self):
+        titles = [item.title for item in self.subject.similar()]
+        self.assertEqual(
+            titles, ["Same place and type", "Same place only", "Same type, close price"]
+        )
+
+    def test_excludes_self_drafts_and_other_listing_kind(self):
+        titles = {item.title for item in self.subject.similar(limit=10)}
+        self.assertNotIn("Subject", titles)
+        self.assertNotIn("Draft twin", titles)
+        self.assertNotIn("Rental twin", titles)
+        self.assertIn("Same type, far price", titles)
+
+    def test_section_on_listing_page(self):
+        response = self.client.get(self.subject.get_absolute_url())
+        self.assertContains(response, "Similar properties")
+        self.assertContains(response, "Same place and type")
+        self.assertContains(response, "listing_type=sale&amp;location=Batroun")
+        self.assertEqual(len(response.context["similar_listings"]), 3)
+
+    def test_section_hidden_when_nothing_similar(self):
+        lonely = make_listing(title="Lonely rental", listing_type="rent", rent_period="year")
+        Listing.objects.filter(title="Rental twin").delete()
+        response = self.client.get(lonely.get_absolute_url())
+        self.assertNotContains(response, "Similar properties")
+
+    def test_rentals_prefer_same_period(self):
+        monthly = make_listing(
+            title="Monthly", location="Beirut", price=1500, listing_type="rent", rent_period="month"
+        )
+        make_listing(
+            title="Yearly", location="Beirut", price=1500, listing_type="rent", rent_period="year"
+        )
+        make_listing(
+            title="Monthly too",
+            location="Beirut",
+            price=1700,
+            listing_type="rent",
+            rent_period="month",
+        )
+        self.assertEqual([item.title for item in monthly.similar()][0], "Monthly too")
+
+
 class MapViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):

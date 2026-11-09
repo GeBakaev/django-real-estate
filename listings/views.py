@@ -126,6 +126,7 @@ class PostDetail(generic.DetailView):
         context.setdefault("form", ContactForm(listing=self.object))
         listing_url = self.request.build_absolute_uri(self.object.get_absolute_url())
         context["whatsapp_text"] = f"Hello, I am interested in {self.object.title}: {listing_url}"
+        context["similar_listings"] = self.object.similar()
         return context
 
     def post(self, request, *args, **kwargs):
