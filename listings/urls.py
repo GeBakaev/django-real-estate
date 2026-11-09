@@ -7,6 +7,7 @@ from .sitemaps import sitemaps
 urlpatterns = [
     path("", views.home, name="home"),
     path("properties/", views.PostList.as_view(), name="properties"),
+    path("properties/map/", views.properties_map, name="properties-map"),
     path("about-us/", views.about_us, name="about-us"),
     path("contact-us/", views.contact_us, name="contact-us"),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),

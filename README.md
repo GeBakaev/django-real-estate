@@ -27,7 +27,8 @@ Photos in the screenshots and under `static/images/` are from Unsplash; see
 - Listings for sale or for rent; rentals show their price per month or per year, which is
   also the minimum term.
 - Properties page with search, filters (sale or rent, location, type, bedrooms, price range,
-  minimum area), sorting and pagination. Results update in place with htmx; every filter state is a plain
+  minimum area), sorting and pagination, plus a map view of the same results with a card
+  popup per pin. Results update in place with htmx; every filter state is a plain
   URL that also works without JavaScript.
 - Listing page with a photo gallery (thumbnails, arrows, keyboard and swipe), key facts, a map
   (OpenStreetMap via Leaflet, no API key) and an inquiry form tied to that property.

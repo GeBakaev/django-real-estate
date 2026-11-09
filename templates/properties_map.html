@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Properties map{% endblock %}
+{% block meta_description %}Every property on a map. Filter by sale or rent, location, type, bedrooms, price and area.{% endblock %}
+
+{% block head %}
+    {% if markers %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+{% include "partials/page_header.html" with eyebrow="Properties" title="Explore on the map" image="images/hero.webp" %}
+
+<section id="properties" class="container-x py-16 sm:py-20">
+    {% url 'properties-map' as map_url %}
+    {% include "partials/listing_filters.html" with action=map_url %}
+
+    <div class="mt-10">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <p class="text-sm text-stone-500" role="status">
+                {{ markers|length }} propert{{ markers|length|pluralize:"y,ies" }} on the map{% if unlocated_count %}, {{ unlocated_count }} more without a location{% endif %}
+            </p>
+            {% include "partials/view_toggle.html" with active="map" %}
+        </div>
+        {% if markers %}
+            <div id="listing-map" class="mt-6 h-[70vh] min-h-96 w-full rounded-2xl border border-stone-200 bg-stone-100" aria-label="Map of properties"></div>
+            {{ markers|json_script:"listing-map-data" }}
+        {% elif filter_form.is_active %}
+            <div class="mt-6 rounded-2xl border border-dashed border-stone-300 p-12 text-center text-stone-500">
+                <p>No properties with a location match these filters.</p>
+                <a href="{% url 'properties-map' %}#properties" class="mt-4 inline-block text-sm font-semibold text-brand-500 hover:text-brand-600">Clear filters</a>
+            </div>
+        {% else %}
+            <p class="mt-6 rounded-2xl border border-dashed border-stone-300 p-12 text-center text-stone-500">
+                No properties have a location yet.
+            </p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block javascript %}
+    {% if markers %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="{% static 'js/listing_map.js' %}" defer></script>
+    {% endif %}
+{% endblock %}
