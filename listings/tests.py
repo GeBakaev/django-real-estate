@@ -346,20 +346,18 @@ class SiteCopyAndPolishTests(TestCase):
     def test_hero_copy_comes_from_website_info(self):
         WebsiteInfo.objects.all().delete()
         WebsiteInfo.objects.create(
-            hero_tagline="Coast and mountains",
             hero_title="Homes worth coming back to",
             hero_subtitle="Sold by people who know every street.",
             about_headline="Thirty years on the coast",
         )
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "Coast and mountains")
         self.assertContains(response, "Homes worth coming back to")
         self.assertContains(response, "Sold by people who know every street.")
         self.assertContains(self.client.get(reverse("about-us")), "Thirty years on the coast")
 
-    def test_empty_tagline_hides_the_pill(self):
+    def test_hero_has_no_tagline_pill(self):
         WebsiteInfo.objects.all().delete()
-        WebsiteInfo.objects.create(hero_tagline="", hero_subtitle="")
+        WebsiteInfo.objects.create(hero_subtitle="")
         response = self.client.get(reverse("home"))
         self.assertNotContains(response, "eyebrow-pill")
         self.assertContains(response, "Premier real estate")

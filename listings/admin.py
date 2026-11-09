@@ -100,7 +100,7 @@ class WebsiteInfoAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("Home page", {"fields": ("hero_tagline", "hero_title", "hero_subtitle")}),
+        ("Home page", {"fields": ("hero_title", "hero_subtitle")}),
         (
             "About page",
             {

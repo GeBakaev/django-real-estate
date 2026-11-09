@@ -133,7 +133,7 @@ every variable with comments.
 Everything visible on the site is edited at `/admin`:
 
 - **Website info** holds the site name, contact email and phone, the optional WhatsApp number,
-  social links, location, the home page headline and tagline, the About heading and text, and
+  social links, location, the home page headline and subtitle, the About heading and text, and
   the property, city and office counts. There is exactly one record.
 - **Listings** are drafts until their status is set to Published; drafts are never shown
   publicly. Photos are added inline; tick **Default** on the one to use as the cover. Click the
