@@ -282,6 +282,66 @@ class SaleOrRentTests(TestCase):
         )
 
 
+class MapViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.beirut = make_listing(
+            title="Flat in Beirut", location="Beirut", latitude="33.8886", longitude="35.5205"
+        )
+        cls.batroun = make_listing(
+            title="Villa in Batroun",
+            location="Batroun",
+            price=850000,
+            latitude="34.2553",
+            longitude="35.6581",
+        )
+        make_listing(title="No coordinates", location="Beirut")
+        make_listing(
+            title="Draft pin",
+            status=Listing.Status.DRAFT,
+            latitude="33.9",
+            longitude="35.5",
+        )
+
+    def test_map_page_lists_located_published_listings(self):
+        response = self.client.get(reverse("properties-map"))
+        self.assertEqual(response.status_code, 200)
+        titles = [item["title"] for item in response.context["markers"]]
+        self.assertEqual(sorted(titles), ["Flat in Beirut", "Villa in Batroun"])
+        self.assertContains(response, 'id="listing-map-data"')
+        self.assertContains(response, "2 properties on the map, 1 more without a location")
+        self.assertContains(response, "leaflet@1.9.4")
+        villa = next(item for item in response.context["markers"] if "Villa" in item["title"])
+        self.assertEqual(villa["price"], "$850,000")
+        self.assertEqual(villa["url"], self.batroun.get_absolute_url())
+        self.assertAlmostEqual(villa["lat"], 34.2553)
+
+    def test_map_respects_filters(self):
+        response = self.client.get(reverse("properties-map"), {"location": "Batroun"})
+        titles = [item["title"] for item in response.context["markers"]]
+        self.assertEqual(titles, ["Villa in Batroun"])
+        self.assertContains(response, "1 property on the map")
+        self.assertNotContains(response, "without a location")
+
+    def test_map_empty_state(self):
+        response = self.client.get(reverse("properties-map"), {"min_price": 5_000_000})
+        self.assertContains(response, "No properties with a location match these filters.")
+        self.assertNotContains(response, 'id="listing-map-data"')
+        self.assertNotContains(response, "leaflet@1.9.4")
+
+    def test_toggle_links_keep_filters_and_drop_page(self):
+        response = self.client.get(reverse("properties"), {"location": "Beirut", "page": 1})
+        self.assertContains(response, 'href="/properties/map/?location=Beirut#properties"')
+        response = self.client.get(reverse("properties-map"), {"location": "Beirut"})
+        self.assertContains(response, 'href="/properties/?location=Beirut#properties"')
+        response = self.client.get(reverse("properties"))
+        self.assertContains(response, 'href="/properties/map/#properties"')
+
+    def test_map_page_in_sitemap(self):
+        response = self.client.get(reverse("sitemap"))
+        self.assertContains(response, "http://testserver/properties/map/")
+
+
 class SiteCopyAndPolishTests(TestCase):
     def test_hero_copy_comes_from_website_info(self):
         WebsiteInfo.objects.all().delete()

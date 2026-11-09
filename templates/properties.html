@@ -10,27 +10,8 @@
 {% include "partials/page_header.html" with eyebrow="Properties" title="Your next dream home" image="images/hero.webp" %}
 
 <section id="properties" class="container-x py-16 sm:py-20">
-    <form method="get" action="{% url 'properties' %}#properties"
-          class="rounded-2xl border border-stone-200 bg-stone-50 p-5 sm:p-6"
-          hx-get="{% url 'properties' %}" hx-target="#results" hx-indicator="#results"
-          hx-trigger="submit, change, keyup changed delay:400ms from:#id_q" hx-sync="this:replace"
-          hx-push-url="true">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-            <div class="lg:col-span-2">{% include "partials/field.html" with field=filter_form.q %}</div>
-            {% include "partials/field.html" with field=filter_form.listing_type %}
-            {% include "partials/field.html" with field=filter_form.location %}
-            {% include "partials/field.html" with field=filter_form.property_type %}
-            {% include "partials/field.html" with field=filter_form.sort %}
-            {% include "partials/field.html" with field=filter_form.min_bedrooms %}
-            {% include "partials/field.html" with field=filter_form.min_price %}
-            {% include "partials/field.html" with field=filter_form.max_price %}
-            {% include "partials/field.html" with field=filter_form.min_area %}
-            <div class="flex items-end gap-3 lg:col-span-2">
-                <button type="submit" class="btn btn-primary flex-1">Apply</button>
-                <a href="{% url 'properties' %}#properties" class="btn border border-stone-300 bg-white text-stone-700 hover:border-stone-400">Reset</a>
-            </div>
-        </div>
-    </form>
+    {% url 'properties' as list_url %}
+    {% include "partials/listing_filters.html" with action=list_url htmx=True %}
 
     <div id="results" class="mt-10 transition-opacity">
         {% include "partials/listing_results.html" %}

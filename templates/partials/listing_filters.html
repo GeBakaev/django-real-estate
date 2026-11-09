@@ -1,0 +1,22 @@
+{# Filter form shared by the list and map views. `action` is the URL to submit to; `htmx` swaps results in place. #}
+<form method="get" action="{{ action }}#properties"
+      class="rounded-2xl border border-stone-200 bg-stone-50 p-5 sm:p-6"
+      {% if htmx %}hx-get="{{ action }}" hx-target="#results" hx-indicator="#results"
+      hx-trigger="submit, change, keyup changed delay:400ms from:#id_q" hx-sync="this:replace"
+      hx-push-url="true"{% endif %}>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <div class="lg:col-span-2">{% include "partials/field.html" with field=filter_form.q %}</div>
+        {% include "partials/field.html" with field=filter_form.listing_type %}
+        {% include "partials/field.html" with field=filter_form.location %}
+        {% include "partials/field.html" with field=filter_form.property_type %}
+        {% include "partials/field.html" with field=filter_form.sort %}
+        {% include "partials/field.html" with field=filter_form.min_bedrooms %}
+        {% include "partials/field.html" with field=filter_form.min_price %}
+        {% include "partials/field.html" with field=filter_form.max_price %}
+        {% include "partials/field.html" with field=filter_form.min_area %}
+        <div class="flex items-end gap-3 lg:col-span-2">
+            <button type="submit" class="btn btn-primary flex-1">Apply</button>
+            <a href="{{ action }}#properties" class="btn border border-stone-300 bg-white text-stone-700 hover:border-stone-400">Reset</a>
+        </div>
+    </div>
+</form>
