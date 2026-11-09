@@ -72,6 +72,7 @@ class ListingFilterForm(forms.Form):
     BEDROOM_CHOICES = [("", "Any"), ("1", "1+"), ("2", "2+"), ("3", "3+"), ("4", "4+")]
     FILTER_FIELDS = (
         "q",
+        "listing_type",
         "location",
         "property_type",
         "min_bedrooms",
@@ -85,6 +86,11 @@ class ListingFilterForm(forms.Form):
         max_length=100,
         label="Search",
         widget=forms.TextInput(attrs={"type": "search", "placeholder": "Title, area or keyword"}),
+    )
+    listing_type = forms.ChoiceField(
+        required=False,
+        label="Sale or rent",
+        choices=[("", "Sale and rent")] + Listing.ListingType.choices,
     )
     location = forms.ChoiceField(required=False, label="Location")
     property_type = forms.ChoiceField(
@@ -141,6 +147,8 @@ class ListingFilterForm(forms.Form):
                 | Q(location__icontains=term)
                 | Q(description__icontains=term)
             )
+        if data.get("listing_type"):
+            queryset = queryset.filter(listing_type=data["listing_type"])
         if data.get("location"):
             queryset = queryset.filter(location=data["location"])
         if data.get("property_type"):

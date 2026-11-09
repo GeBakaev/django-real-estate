@@ -2,7 +2,7 @@
 {% load humanize static %}
 {% block title %}{{ object.title }}{% endblock %}
 {% block meta_description %}{{ object.summary }}{% endblock %}
-{% block og_title %}{{ object.title }} · ${{ object.price|intcomma }}{% endblock %}
+{% block og_title %}{{ object.title }} · {{ object.price_label }}{% endblock %}
 {% block og_description %}{{ object.location }}. {{ object.summary }}{% endblock %}
 {% block og_image %}{% with cover=object.cover_image %}{% if cover %}{{ request.scheme }}://{{ request.get_host }}{{ cover.large_url }}{% else %}{{ default_og_image }}{% endif %}{% endwith %}{% endblock %}
 
@@ -22,12 +22,13 @@
         <div>
             <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-500">
                 <span class="inline-flex items-center gap-1.5">{% include "icons/map-pin.svg" with icon_class="size-4" %}{{ object.location }}</span>
+                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide {% if object.is_rental %}bg-stone-900 text-white{% else %}bg-brand-50 text-brand-600{% endif %}">{{ object.get_listing_type_display }}</span>
                 {% if object.property_type %}<span class="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-stone-600">{{ object.get_property_type_display }}</span>{% endif %}
             </p>
             <h1 class="mt-2 font-display text-3xl font-bold text-stone-900 sm:text-4xl">{{ object.title }}</h1>
         </div>
         <div class="sm:text-right">
-            <p class="font-display text-3xl font-bold text-brand-500">${{ object.price|intcomma }}</p>
+            <p class="font-display text-3xl font-bold text-brand-500">{{ object.price_label }}</p>
             {% include "partials/listing_specs.html" with listing=object class="flex flex-wrap gap-x-3 text-sm text-stone-500 sm:justify-end" %}
         </div>
     </header>

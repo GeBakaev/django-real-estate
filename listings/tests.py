@@ -3,6 +3,7 @@ import tempfile
 from io import BytesIO
 
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -213,6 +214,71 @@ class ListingFilterTests(TestCase):
         )
         self.assertContains(
             response, 'href="?location=Beirut&amp;sort=price_asc&amp;page=2#properties"'
+        )
+
+
+class SaleOrRentTests(TestCase):
+    def make_rental(self, **kwargs):
+        fields = {
+            "title": "Furnished Flat in Hamra",
+            "location": "Beirut",
+            "price": 1500,
+            "listing_type": Listing.ListingType.RENT,
+            "rent_period": Listing.RentPeriod.MONTH,
+        }
+        fields.update(kwargs)
+        return make_listing(**fields)
+
+    def test_defaults_to_sale_with_plain_price_label(self):
+        listing = make_listing(price=850000)
+        self.assertEqual(listing.listing_type, "sale")
+        self.assertFalse(listing.is_rental)
+        self.assertEqual(listing.price_label, "$850,000")
+
+    def test_rental_price_label_includes_period(self):
+        self.assertEqual(self.make_rental().price_label, "$1,500 / month")
+        yearly = self.make_rental(title="Yearly", price=14000, rent_period="year")
+        self.assertEqual(yearly.price_label, "$14,000 / year")
+
+    def test_rental_requires_a_period(self):
+        listing = Listing(
+            title="No period", price=900, listing_type="rent", location="Beirut", description="x"
+        )
+        with self.assertRaises(ValidationError) as caught:
+            listing.full_clean()
+        self.assertIn("rent_period", caught.exception.message_dict)
+
+    def test_sale_drops_a_leftover_period(self):
+        listing = self.make_rental()
+        listing.listing_type = Listing.ListingType.SALE
+        listing.save()
+        listing.refresh_from_db()
+        self.assertEqual(listing.rent_period, "")
+        self.assertEqual(listing.price_label, "$1,500")
+
+    def test_filter_by_listing_type(self):
+        make_listing(title="Villa for sale", price=900000)
+        self.make_rental()
+
+        def titles(**params):
+            response = self.client.get(reverse("properties"), params)
+            return [item.title for item in response.context["page_obj"]]
+
+        self.assertEqual(titles(listing_type="rent"), ["Furnished Flat in Hamra"])
+        self.assertEqual(titles(listing_type="sale"), ["Villa for sale"])
+        self.assertEqual(len(titles()), 2)
+        self.assertEqual(len(titles(listing_type="lease")), 2)
+
+    def test_cards_and_detail_show_type_and_period(self):
+        rental = self.make_rental()
+        response = self.client.get(reverse("properties"))
+        self.assertContains(response, "For rent")
+        self.assertContains(response, "$1,500 / month")
+        response = self.client.get(rental.get_absolute_url())
+        self.assertContains(response, "For rent")
+        self.assertContains(response, "$1,500 / month")
+        self.assertContains(
+            response, 'property="og:title" content="Furnished Flat in Hamra · $1,500 / month"'
         )
 
 
