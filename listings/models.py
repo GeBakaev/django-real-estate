@@ -1,3 +1,5 @@
+from django.contrib.humanize.templatetags.humanize import intcomma
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_delete
@@ -26,6 +28,14 @@ class Listing(models.Model):
         LAND = "land", "Land"
         COMMERCIAL = "commercial", "Commercial"
 
+    class ListingType(models.TextChoices):
+        SALE = "sale", "For sale"
+        RENT = "rent", "For rent"
+
+    class RentPeriod(models.TextChoices):
+        MONTH = "month", "Per month"
+        YEAR = "year", "Per year"
+
     listing_id = models.AutoField(db_column="id", primary_key=True)
     title = models.CharField(max_length=200)
     slug = models.SlugField(
@@ -34,7 +44,17 @@ class Listing(models.Model):
         blank=True,
         help_text="URL identifier. Generated from the title when left blank.",
     )
-    price = models.IntegerField(default=0)
+    listing_type = models.CharField(
+        max_length=4, choices=ListingType.choices, default=ListingType.SALE
+    )
+    price = models.IntegerField(default=0, help_text="Total price, or the rent per period.")
+    rent_period = models.CharField(
+        max_length=5,
+        choices=RentPeriod.choices,
+        blank=True,
+        default="",
+        help_text="Rentals only: the period the rent covers, which is also the minimum term.",
+    )
     area = models.IntegerField(default=0, help_text="Area in square metres.")
     property_type = models.CharField(
         max_length=20,
@@ -78,14 +98,36 @@ class Listing(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._build_unique_slug()
+        if not self.is_rental:
+            self.rent_period = ""
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("post_detail", kwargs={"slug": self.slug})
 
+    def clean(self):
+        if self.is_rental and not self.rent_period:
+            raise ValidationError({"rent_period": "Choose the rent period for a rental."})
+
     @property
     def is_published(self):
         return self.status == self.Status.PUBLISHED
+
+    @property
+    def is_rental(self):
+        return self.listing_type == self.ListingType.RENT
+
+    @property
+    def price_suffix(self):
+        """ " / month" or " / year" for rentals, empty for sales."""
+        if self.is_rental and self.rent_period:
+            return f" / {self.rent_period}"
+        return ""
+
+    @property
+    def price_label(self):
+        """Price as shown everywhere on the site, e.g. "$850,000" or "$1,200 / month"."""
+        return f"${intcomma(self.price)}{self.price_suffix}"
 
     @property
     def summary(self):

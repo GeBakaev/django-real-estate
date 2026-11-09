@@ -28,13 +28,14 @@ class ListingAdmin(admin.ModelAdmin):
     list_display = (
         "title",
         "status",
+        "listing_type",
         "property_type",
-        "price",
+        "price_label",
         "bedrooms",
         "location",
         "created_on",
     )
-    list_filter = ("status", "property_type")
+    list_filter = ("status", "listing_type", "property_type")
     search_fields = ("title", "description", "location")
     prepopulated_fields = {"slug": ("title",)}
     fieldsets = (
@@ -45,6 +46,7 @@ class ListingAdmin(admin.ModelAdmin):
                     "title",
                     "slug",
                     "status",
+                    ("listing_type", "rent_period"),
                     "property_type",
                     ("price", "area"),
                     ("bedrooms", "bathrooms"),
@@ -60,6 +62,10 @@ class ListingAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.display(description="Price", ordering="price")
+    def price_label(self, obj):
+        return obj.price_label
 
     class Media:
         css = {"all": (LEAFLET_CSS,)}
