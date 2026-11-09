@@ -84,4 +84,29 @@
   .page-link-active {
     @apply bg-brand-500 text-white hover:bg-brand-500;
   }
+
+  .view-link {
+    @apply rounded-full px-4 py-1.5 text-stone-600 transition hover:text-stone-900;
+  }
+  .view-link-active {
+    @apply bg-stone-900 text-white hover:text-white;
+  }
+}
+
+/* Popup card on the properties map. Kept outside the cascade layers: Leaflet's own
+   stylesheet is unlayered, and an unlayered rule always beats a layered one. */
+.leaflet-container a.map-popup {
+  @apply block text-stone-900 no-underline;
+}
+.map-popup img {
+  @apply mb-2 aspect-4/3 w-full rounded-lg object-cover;
+}
+.map-popup strong {
+  @apply block font-display text-base font-semibold leading-snug;
+}
+.map-popup span {
+  @apply mt-0.5 block text-xs text-stone-500;
+}
+.map-popup em {
+  @apply mt-1 block font-display text-base font-bold not-italic text-brand-500;
 }

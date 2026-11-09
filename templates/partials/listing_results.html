@@ -1,6 +1,9 @@
-<p class="text-sm text-stone-500" role="status">
-    {{ paginator.count }} propert{{ paginator.count|pluralize:"y,ies" }}{% if filter_form.is_active %} match{{ paginator.count|pluralize:"es," }} your filters{% endif %}
-</p>
+<div class="flex flex-wrap items-center justify-between gap-4">
+    <p class="text-sm text-stone-500" role="status">
+        {{ paginator.count }} propert{{ paginator.count|pluralize:"y,ies" }}{% if filter_form.is_active %} match{{ paginator.count|pluralize:"es," }} your filters{% endif %}
+    </p>
+    {% include "partials/view_toggle.html" with active="list" %}
+</div>
 {% if page_obj %}
     <div class="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {% for listing in page_obj %}

@@ -38,6 +38,18 @@ def home(request):
     return render(request, "home.html", context)
 
 
+def _filtered_listings(request, queryset):
+    """Bind the filter form to the request's query string and apply it to ``queryset``."""
+    locations = (
+        Listing.objects.published()
+        .order_by("location")
+        .values_list("location", flat=True)
+        .distinct()
+    )
+    form = ListingFilterForm(request.GET or None, locations=locations)
+    return form, form.filter(queryset)
+
+
 class PostList(generic.ListView):
     template_name = "properties.html"
     partial_template_name = "partials/listing_results.html"
@@ -45,10 +57,10 @@ class PostList(generic.ListView):
     extra_context = {"nbar": "Properties"}
 
     def get_queryset(self):
-        published = Listing.objects.published()
-        locations = published.order_by("location").values_list("location", flat=True).distinct()
-        self.filter_form = ListingFilterForm(self.request.GET or None, locations=locations)
-        return self.filter_form.filter(published.prefetch_related("images"))
+        self.filter_form, queryset = _filtered_listings(
+            self.request, Listing.objects.published().prefetch_related("images")
+        )
+        return queryset
 
     def get_template_names(self):
         # htmx swaps only the results block; everyone else gets the full page.
@@ -69,6 +81,36 @@ class PostList(generic.ListView):
         response = super().render_to_response(context, **response_kwargs)
         patch_vary_headers(response, ["HX-Request"])
         return response
+
+
+def properties_map(request):
+    """Every published listing with coordinates, under the same filters as the list."""
+    published = Listing.objects.published()
+    located = published.filter(latitude__isnull=False, longitude__isnull=False)
+    form, listings = _filtered_listings(request, located.prefetch_related("images"))
+    markers = []
+    for listing in listings:
+        cover = listing.cover_image
+        markers.append(
+            {
+                "title": listing.title,
+                "url": listing.get_absolute_url(),
+                "location": listing.location,
+                "price": listing.price_label,
+                "kind": listing.get_listing_type_display(),
+                "lat": float(listing.latitude),
+                "lng": float(listing.longitude),
+                "image": cover.thumb_url if cover else None,
+            }
+        )
+    total = form.filter(published).count()
+    context = {
+        "nbar": "Properties",
+        "filter_form": form,
+        "markers": markers,
+        "unlocated_count": total - len(markers),
+    }
+    return render(request, "properties_map.html", context)
 
 
 class PostDetail(generic.DetailView):
