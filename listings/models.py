@@ -310,12 +310,6 @@ class WebsiteInfo(models.Model):
     instagram_link = models.URLField(max_length=255, default="https://instagram.com/example")
     linkedin_link = models.URLField(max_length=255, default="https://linked.in/example")
     # Home page hero
-    hero_tagline = models.CharField(
-        max_length=80,
-        blank=True,
-        default="Invest without limits",
-        help_text="Small label above the headline. Leave empty to hide it.",
-    )
     hero_title = models.CharField(
         max_length=160, default="Premier real estate, from vacant land to your future home"
     )
