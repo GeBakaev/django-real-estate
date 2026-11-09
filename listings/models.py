@@ -2,6 +2,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Case, F, Func, IntegerField, Value, When
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.urls import reverse
@@ -152,6 +153,36 @@ class Listing(models.Model):
         """First image marked as default, else the first image, else None."""
         images = self.gallery_images
         return images[0] if images else None
+
+    def similar(self, limit=3):
+        """Published listings of the same kind (sale or rent), best match first.
+
+        Same location counts double, same property type once (same rent period too, for
+        rentals); ties go to the closest price, then the newest.
+        """
+        conditions = [When(location=self.location, then=Value(2))]
+        if self.property_type:
+            conditions.append(When(property_type=self.property_type, then=Value(1)))
+        if self.is_rental:
+            conditions.append(When(rent_period=self.rent_period, then=Value(1)))
+        score = sum(
+            (
+                Case(condition, default=Value(0), output_field=IntegerField())
+                for condition in conditions
+            ),
+            Value(0),
+        )
+        return (
+            Listing.objects.published()
+            .filter(listing_type=self.listing_type)
+            .exclude(pk=self.pk)
+            .annotate(
+                match_score=score,
+                price_gap=Func(F("price") - self.price, function="ABS"),
+            )
+            .order_by("-match_score", "price_gap", "-created_on")
+            .prefetch_related("images")[:limit]
+        )
 
     def _build_unique_slug(self):
         base = slugify(self.title) or "listing"

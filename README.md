@@ -30,7 +30,8 @@ Photos in the screenshots and under `static/images/` are from Unsplash; see
   minimum area), sorting and pagination. Results update in place with htmx; every filter state is a plain
   URL that also works without JavaScript.
 - Listing page with a photo gallery (thumbnails, arrows, keyboard and swipe), key facts, a map
-  (OpenStreetMap via Leaflet, no API key) and an inquiry form tied to that property.
+  (OpenStreetMap via Leaflet, no API key), an inquiry form tied to that property and up to
+  three similar properties (same kind, nearby location and type, closest price).
 - Contact form on the home and contact pages. Inquiries are stored in the admin and, when
   configured, emailed to the owner with the sender as Reply-To and a link to the property
   they came from.
