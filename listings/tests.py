@@ -407,6 +407,13 @@ class MapViewTests(TestCase):
         self.assertContains(response, 'href="/properties/?location=Beirut#properties"')
         response = self.client.get(reverse("properties"))
         self.assertContains(response, 'href="/properties/map/#properties"')
+        self.assertNotContains(response, "?#properties")
+
+    def test_toggle_links_keep_multiple_filters(self):
+        response = self.client.get(reverse("properties"), {"location": "Beirut", "min_bedrooms": 2})
+        self.assertContains(
+            response, 'href="/properties/map/?location=Beirut&amp;min_bedrooms=2#properties"'
+        )
 
     def test_map_page_in_sitemap(self):
         response = self.client.get(reverse("sitemap"))
@@ -946,3 +953,54 @@ class CoordinateTests(TestCase):
         self.assertEqual(parse(None), (None, None))
         self.assertEqual(parse("garbage"), (None, None))
         self.assertEqual(parse("95,10"), (None, None))
+
+
+class MailSettingsTests(TestCase):
+    """MAILERS is built from the same .env variables the old EMAIL_* settings used."""
+
+    def load_settings(self, **env):
+        import importlib
+        import os
+        from unittest import mock
+
+        import real_estate.settings as settings_module
+
+        with mock.patch.dict(os.environ, env):
+            module = importlib.reload(settings_module)
+        self.addCleanup(importlib.reload, settings_module)
+        return module
+
+    def test_smtp_options_come_from_env(self):
+        module = self.load_settings(
+            DEBUG="0",
+            EMAIL_HOST="smtp.acme.test",
+            EMAIL_PORT="465",
+            EMAIL_HOST_USER="mailer",
+            EMAIL_HOST_PASSWORD="secret",
+            EMAIL_USE_TLS="0",
+        )
+        default = module.MAILERS["default"]
+        self.assertEqual(default["BACKEND"], "django.core.mail.backends.smtp.EmailBackend")
+        self.assertEqual(
+            default["OPTIONS"],
+            {
+                "host": "smtp.acme.test",
+                "port": 465,
+                "username": "mailer",
+                "password": "secret",
+                "use_tls": False,
+                "timeout": 10,
+            },
+        )
+
+    def test_debug_uses_console_without_smtp_options(self):
+        module = self.load_settings(DEBUG="1")
+        default = module.MAILERS["default"]
+        self.assertEqual(default["BACKEND"], "django.core.mail.backends.console.EmailBackend")
+        self.assertEqual(default["OPTIONS"], {})
+
+    def test_no_deprecated_email_settings_remain(self):
+        from django.conf import settings
+
+        for name in ("EMAIL_BACKEND", "EMAIL_HOST", "EMAIL_PORT", "EMAIL_HOST_USER"):
+            self.assertFalse(settings.is_overridden(name), name)
