@@ -171,20 +171,30 @@ MEDIA_ROOT = BASE_DIR / "media"
 PAGINATION_LIMIT = 9
 
 # Email
-# https://docs.djangoproject.com/en/5.2/topics/email/
+# https://docs.djangoproject.com/en/6.1/topics/email/
 # Development prints mail to the console; production needs the SMTP variables in .env.
-EMAIL_BACKEND = os.environ.get(
+# The .env variable names are unchanged; they now feed MAILERS instead of EMAIL_* settings.
+SMTP_EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+_email_backend = os.environ.get(
     "EMAIL_BACKEND",
-    "django.core.mail.backends.console.EmailBackend"
-    if DEBUG
-    else "django.core.mail.backends.smtp.EmailBackend",
+    "django.core.mail.backends.console.EmailBackend" if DEBUG else SMTP_EMAIL_BACKEND,
 )
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", default=True)
-EMAIL_TIMEOUT = 10
+MAILERS = {
+    "default": {
+        "BACKEND": _email_backend,
+        # Backends reject options they don't know, so SMTP settings go to SMTP only.
+        "OPTIONS": {
+            "host": os.environ.get("EMAIL_HOST", "localhost"),
+            "port": int(os.environ.get("EMAIL_PORT", "587")),
+            "username": os.environ.get("EMAIL_HOST_USER", ""),
+            "password": os.environ.get("EMAIL_HOST_PASSWORD", ""),
+            "use_tls": env_bool("EMAIL_USE_TLS", default=True),
+            "timeout": 10,
+        }
+        if _email_backend == SMTP_EMAIL_BACKEND
+        else {},
+    },
+}
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@localhost")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
